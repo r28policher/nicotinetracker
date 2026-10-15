@@ -6,10 +6,10 @@
 <title>Since my last nicotine</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#e8efec;--card:#f7faf8;--ink:#12302c;--mute:#556b66;--line:#cbd9d4;--acc:#1f7a72;--warn:#c98a00;--bad:#b3452f;
+:root{--bg:#e8efec;--card:#f7faf8;--ink:#12302c;--mute:#556b66;--line:#cbd9d4;--acc:#1f7a72;--warn:#c98a00;--bad:#b3452f;--bub:#e3e9e6;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f}}
-:root[data-theme="dark"]{--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f;--bub:#26373a}}
+:root[data-theme="dark"]{--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f;--bub:#26373a}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5}
@@ -60,10 +60,6 @@ ul{margin:8px 0 0;padding-left:20px}li{margin:4px 0}
 .cheer{background:var(--acc);border-color:var(--acc);color:var(--bg)}
 .cheer p{margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.35}
 .cheer button{background:transparent;color:var(--bg);border-color:var(--bg);font-size:13px;padding:8px 14px}
-#aLog{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-.msg{padding:10px 14px;border-radius:14px;max-width:92%;white-space:pre-wrap;font-size:15px}
-.msg.u{align-self:flex-end;background:var(--ink);color:var(--bg)}
-.msg.a{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
 table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
 th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
@@ -102,12 +98,52 @@ select{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line)
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:90vw;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;margin-top:8px}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.lnk{padding:6px 12px;font-size:13px;border-radius:10px}
+.wiz{position:fixed;inset:0;z-index:20;background:rgba(8,20,18,.65);display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.wiz[hidden]{display:none}
+.wzc{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;max-width:460px;width:100%;max-height:100%;overflow:auto;padding:20px}
+.wzc h2{margin:6px 0 10px;font-size:22px}
+.wzd{display:flex;gap:6px}.wzd span{width:26px;height:6px;border-radius:4px;background:var(--line)}.wzd .on{background:var(--acc)}.wzd .done{background:var(--mute)}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:transparent;color:var(--ink)}
+.opt.on{border-color:var(--acc);background:var(--bg)}
+.opt small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
+.wzc label{display:block;margin:12px 0 4px}
+.wzr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wzc select{width:100%}
+.chat{padding:0;overflow:hidden}
+.chh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chh .av{width:36px;height:36px;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.chh b{display:block;font-size:15px}.chh span{display:block;font-size:12px;color:var(--mute);line-height:1.3}
+#aLog{height:min(58vh,440px);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--card);overscroll-behavior:contain}
+.row{display:flex;flex-direction:column;max-width:86%}
+.row.u{align-self:flex-end;align-items:flex-end}.row.a{align-self:flex-start;align-items:flex-start}
+.msg{padding:10px 14px;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.msg.u{background:var(--acc);color:var(--bg);border-radius:18px 18px 4px 18px;white-space:pre-wrap}
+.msg.a{background:var(--bub);color:var(--ink);border-radius:18px 18px 18px 4px}
+.msg p{margin:0 0 8px}.msg ul,.msg ol{margin:0 0 8px;padding-left:20px}.msg h4{margin:0 0 6px;font-size:15px}
+.msg>:last-child{margin-bottom:0}
+.msg code{background:rgba(127,127,127,.2);padding:1px 5px;border-radius:5px;font-size:13px}
+.msg a{color:var(--acc);text-decoration:underline}
+.ts{font-size:11px;color:var(--mute);margin:3px 6px 0}
+.typing{display:inline-flex;gap:4px;padding:5px 0}.typing i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:bl 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.chips-h{display:flex;gap:8px;overflow-x:auto;padding:10px 14px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
+.chips-h::-webkit-scrollbar{display:none}
+.chips-h button{flex:none;white-space:nowrap;font-weight:500;font-size:13px;padding:8px 14px;border-radius:20px;border:1px solid var(--acc);color:var(--acc)}
+.cin{display:flex;gap:8px;align-items:center;padding:10px 14px 12px}
+.cin input{border-radius:22px;padding:11px 16px}
+.cin .send{width:44px;height:44px;border-radius:50%;padding:0;display:grid;place-items:center;flex:none;background:var(--acc);border-color:var(--acc);color:var(--bg)}
+.cin .send:disabled{opacity:.5}
+.cnote{padding:0 16px 14px;margin:0}
 .note{font-size:12.5px;color:var(--mute);margin-top:20px}
 </style>
 </head>
 <body>
 <main>
-<h1>Time since my last nicotine</h1>
+<div class="hd"><h1>Time since my last nicotine</h1><button class="lnk" id="wzOpen">Setup</button></div>
 
 <section class="card" aria-live="off">
   <div class="clock"><div><b id="d">0</b><span>days</span></div><div><b id="h">0</b><span>hours</span></div><div><b id="m">0</b><span>min</span></div><div><b id="s">0</b><span>sec</span></div></div>
@@ -115,6 +151,7 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
   <p class="small" id="next"></p>
   <div class="stats"><div><b id="stSave">0</b><span>saved so far</span></div><div><b id="stBest">0</b><span>longest streak</span></div><div><b id="stUrge">0</b><span>urges beaten</span></div></div>
   <div class="spend"><span>Daily spend</span><input id="spCur" placeholder="$" maxlength="3" aria-label="Currency symbol" style="width:58px"><input id="spAmt" type="number" min="0" placeholder="0" aria-label="Amount spent per day" style="width:96px"></div>
+  <p class="small" id="spNote" style="margin-top:4px"></p>
   <div class="btns"><button class="main" id="took">I just had nicotine</button><button id="edit">Change time</button></div>
   <div id="editBox" hidden style="margin-top:12px"><label class="small" for="dt">When was your last intake?</label><input type="datetime-local" id="dt"><div class="btns"><button class="main" id="save">Save time</button></div></div>
 </section>
@@ -135,13 +172,9 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
   <div class="np" id="nowPlan"></div>
 </section>
 
-<section class="card" id="assist">
-  <h2>AI chat</h2>
-  <p class="small">Ask anything about withdrawal, cravings or quitting. The AI knows how long you've been nicotine-free and what your plan says today. Works in any browser. Just add your free key once in the setup below.</p>
-  <div class="chips" id="aChips"><button>I have a headache</button><button>I can't sleep</button><button>I'm very irritable</button><button>I feel anxious</button><button>I have a strong craving now</button></div>
-  <div id="aLog" aria-live="polite"></div>
-  <div class="gadd"><input id="aIn" maxlength="400" placeholder="Ask anything" aria-label="Your question"><button class="main" id="aGo">Send</button></div>
-  <details id="aiSet" style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:600">Set up the AI (one time)</summary>
+<section class="card chat" id="assist">
+  <div class="chh"><div class="av" aria-hidden="true">AI</div><div><b>AI chat</b><span id="aStatus">Ask me anything</span></div></div>
+  <div style="padding:10px 16px 0"><details id="aiSet" style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:600">Set up the AI (one time)</summary>
     <p class="small" style="margin-top:8px">Get a free Gemini key at aistudio.google.com, paste it here and tap Save and test. That is all you need.</p>
     <label class="small" for="aiK" style="display:block;margin-top:8px">Gemini API key</label>
     <input id="aiK" type="password" autocomplete="off" placeholder="Paste your key">
@@ -157,8 +190,15 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
       <p class="small" style="margin-top:8px">If Test says the model wasn't found, tap Find models and pick one from the list. Model names change over time.</p>
     </details>
     <p class="small">Your key is stored only in this browser and is never included in backups. Your messages go to the provider you use, so check their data terms.</p>
-  </details>
-  <p class="small" style="margin-top:8px">AI support, not a doctor. For chest pain, trouble breathing, fainting or thoughts of self-harm, contact emergency services or a doctor right away.</p>
+  </details></div>
+  <div id="aLog" aria-live="polite"></div>
+  <div class="chips-h" id="aChips">
+    <button data-q="I need help right now. I'm having a strong craving or feeling overwhelmed. What can I do in the next few minutes?">I need help right now</button>
+    <button data-q="Why does coffee trigger my nicotine cravings, and how can I handle it?">Why is coffee triggering me?</button>
+    <button data-q="How do I use nicotine patches properly, and what should I watch out for?">How do I use nicotine patches?</button>
+  </div>
+  <div class="cin"><input id="aIn" maxlength="400" placeholder="Message" aria-label="Your message" autocomplete="off"><button class="send" id="aGo" aria-label="Send message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+  <p class="small cnote">AI support, not a doctor. For chest pain, trouble breathing, fainting or thoughts of self-harm, contact emergency services or a doctor right away.</p>
 </section>
 
 <section class="card goals">
@@ -296,6 +336,16 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
 
 <p class="note">General information only, not medical advice. If withdrawal feels overwhelming, talk to a doctor or a quitline. Data stays in this browser.</p>
 </main>
+<div id="wiz" class="wiz" role="dialog" aria-modal="true" aria-labelledby="wzT" hidden>
+  <div class="wzc">
+    <div class="wzd" id="wzDots"></div>
+    <h2 id="wzT"></h2>
+    <div id="wzB"></div>
+    <p class="small" id="wzE" role="alert" style="color:var(--bad);min-height:1.4em;margin:8px 0 0"></p>
+    <div class="btns"><button id="wzBack">Back</button><button class="main" id="wzNext">Next</button></div>
+    <button class="lnk" id="wzSkip" style="width:100%;margin-top:8px;border:0;color:var(--mute)">Skip for now</button>
+  </div>
+</div>
 <nav class="qbar" aria-label="Quick actions"><button id="qCrave">Craving now</button><button id="qAsk">Ask AI</button><button id="qGoals">Goals</button></nav>
 <div id="toast" class="toast" role="status" hidden></div>
 
@@ -652,8 +702,89 @@ $("bkLoad").onclick=function(){
 };
 $("bkName").value=(S.bk&&S.bk.name)||"";
 
+// ---- Onboarding wizard ----
+const WZ_UNIT={cig:"cigarettes per day",vape:"pods or refills per day",pouch:"pouches per day"};
+const WZ_NAME={cig:"Cigarettes",vape:"Vape",pouch:"Nicotine pouches"};
+const WZ_ONE={cig:"cigarette",vape:"pod or refill",pouch:"pouch"};
+const localNow=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
+let W={},wzStep=0;
+function wzInit(){
+  const p=S.prod||{},sp=S.sp||{},t=S.tp||{};
+  W={prod:p.type||"",strength:p.strength||"",rate:p.rate||"",price:p.price||"",cur:sp.c||"",goal:"taper",p:t.p||25,d:t.d||14,basis:(p.type==="vape"&&t.k==="day")?"day":"str",last:""};
+}
+const wzErr=t=>{$("wzE").textContent=t};
+function wzSum(){
+  const a=(+W.rate||0)*(+W.price||0),c=W.cur||"";
+  $("wzS").textContent=a>0?`That is about ${c}${a.toFixed(2)} a day, ${c}${Math.round(a*30).toLocaleString()} a month and ${c}${Math.round(a*365).toLocaleString()} a year.`:"Add your price to see what you spend.";
+}
+const opts=(arr,cur)=>arr.map(([v,l])=>`<option value="${v}" ${String(cur)===String(v)?"selected":""}>${l}</option>`).join("");
+function wzRender(){
+  const st=wzStep;wzErr("");
+  $("wzDots").innerHTML=[0,1,2].map(i=>`<span class="${i===st?"on":i<st?"done":""}"></span>`).join("");
+  $("wzBack").style.visibility=st?"visible":"hidden";
+  $("wzNext").textContent=st===2?"Start my plan":"Next";
+  let t,b;
+  if(st===0){
+    t="Welcome, let's set you up";
+    b=`<p class="small" style="margin-bottom:12px">Three quick questions so your timer, goals and plan fit you. You can change everything later.</p><p style="font-weight:600;margin:0 0 8px">What do you use?</p><div class="opts">`+
+      ["cig","vape","pouch"].map(k=>`<button class="opt ${W.prod===k?"on":""}" data-k="prod" data-v="${k}">${WZ_NAME[k]}<small>${{cig:"Counted in cigarettes per day",vape:"Counted in pods or refills, tapered by mg strength",pouch:"Counted in pouches per day"}[k]}</small></button>`).join("")+`</div>`+
+      (W.prod==="vape"?`<label class="small" for="wzStr">Nicotine strength of your vape (mg per ml)</label><input id="wzStr" type="number" min="0" step="0.5" inputmode="decimal" data-f="strength" value="${esc(String(W.strength))}" placeholder="e.g. 20">`:"");
+  }else if(st===1){
+    t="How much do you use?";
+    b=`<label class="small" for="wzRate">How many ${WZ_UNIT[W.prod]}?</label><input id="wzRate" type="number" min="0" step="0.5" inputmode="decimal" data-f="rate" value="${esc(String(W.rate))}" placeholder="e.g. 15">
+    <div class="wzr"><div><label class="small" for="wzCur">Currency</label><input id="wzCur" maxlength="3" data-f="cur" value="${esc(W.cur)}" placeholder="$"></div><div><label class="small" for="wzPr">Price per ${WZ_ONE[W.prod]}</label><input id="wzPr" type="number" min="0" step="0.01" inputmode="decimal" data-f="price" value="${esc(String(W.price))}" placeholder="0.50"></div></div>
+    <p class="small" style="margin-top:6px">Tip: pack price divided by the number of pieces in it.</p><p class="small" id="wzS" style="margin-top:6px;font-weight:600"></p>`;
+  }else{
+    t="What is your goal?";
+    b=`<div class="opts"><button class="opt ${W.goal==="cold"?"on":""}" data-k="goal" data-v="cold">Quit now (cold turkey)<small>Your clock starts today. The hardest days are usually 1 to 3.</small></button><button class="opt ${W.goal==="taper"?"on":""}" data-k="goal" data-v="taper">Slow taper<small>Step down gradually, usually over 4 to 12 weeks.</small></button></div>`;
+    if(W.goal==="taper"){
+      b+=`<div class="wzr"><div><label class="small" for="wzP">Cut each step</label><select id="wzP" data-f="p">${opts([[10,"10% (gentle)"],[25,"25%"],[33,"33%"],[50,"50% (fast)"]],W.p)}</select></div><div><label class="small" for="wzD">Step length</label><select id="wzD" data-f="d">${opts([[7,"1 week"],[10,"10 days"],[14,"2 weeks"]],W.d)}</select></div></div>`;
+      if(W.prod==="vape")b+=`<label class="small" for="wzBa">Taper by</label><select id="wzBa" data-f="basis">${opts([["str","Lowering strength (mg/ml)"],["day","Using less per day"]],W.basis)}</select>`;
+    }
+    b+=`<label class="small" for="wzLast">When was your last use?</label><input id="wzLast" type="datetime-local" data-f="last" value="${W.last}" max="${localNow()}"><p class="small" style="margin-top:6px">This starts your timer. Starting a new plan replaces your current one, and your history stays.</p>`;
+  }
+  $("wzT").textContent=t;$("wzB").innerHTML=b;
+  if(st===1)wzSum();
+}
+$("wzB").onclick=e=>{const o=e.target.closest(".opt");if(!o)return;W[o.dataset.k]=o.dataset.v;wzRender()};
+$("wzB").oninput=$("wzB").onchange=e=>{
+  const f=e.target.dataset.f;if(!f)return;
+  W[f]=(f==="p"||f==="d")?+e.target.value:e.target.value;
+  if(wzStep===1)wzSum();
+};
+$("wzBack").onclick=()=>{if(wzStep>0){wzStep--;wzRender()}};
+$("wzNext").onclick=()=>{
+  if(wzStep===0){
+    if(!W.prod)return wzErr("Pick what you use.");
+    if(W.prod==="vape"&&!(+W.strength>0))return wzErr("Enter your vape strength in mg per ml.");
+  }
+  if(wzStep===1&&!(+W.rate>0))return wzErr("Enter how many you use per day.");
+  if(wzStep===2){wzFinish();return}
+  wzStep++;if(wzStep===2&&!W.last)W.last=localNow();wzRender();
+};
+function wzFinish(){
+  const n={...S},prod=W.prod,rate=+W.rate,price=+W.price||0;
+  n.prod={type:prod,rate,price,strength:+W.strength||0};
+  n.sp={c:(W.cur||"").trim(),a:Math.round(rate*price*100)/100};
+  let ts=W.last?new Date(W.last).getTime():Date.now();if(!(ts>0)||ts>Date.now())ts=Date.now();
+  n.last=ts;
+  if(W.goal==="taper"){
+    const byStr=prod==="vape"&&W.basis==="str";
+    n.tp={a:byStr?+W.strength:rate,u:byStr?"mg/ml":WZ_UNIT[prod],k:byStr?"str":"day",p:W.p,d:W.d,s:new Date().setHours(0,0,0,0)};
+  }else delete n.tp;
+  n.onb=1;
+  applyState(n,S.bk);
+  $("wiz").hidden=true;
+  toast(W.goal==="taper"?"Your taper plan is ready. See Weekly expectations below.":"Your clock is running. You've got this.");
+  scrollTo({top:0,behavior:"smooth"});
+}
+function wzOpen(){wzInit();wzStep=0;$("wiz").hidden=false;wzRender();$("wzNext").focus()}
+$("wzSkip").onclick=()=>{S.onb=1;save();$("wiz").hidden=true};
+$("wzOpen").onclick=wzOpen;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("wiz").hidden)$("wzSkip").click()});
+
 // ---- Savings, reason, quick bar, toast ----
-function planCtx(){const P=pl();return P?` Taper plan step ${P.i+1}: limit ${P.v} ${P.t.u}${P.t.k==="str"?" (strength)":" per day"}, used today ${used()}.`:""}
+function planCtx(){const P=pl(),pr=S.prod?` Product: ${WZ_NAME[S.prod.type]}, ${S.prod.rate} ${WZ_UNIT[S.prod.type]}${S.prod.type==="vape"?`, ${S.prod.strength} mg/ml`:""}.`:"";return pr+(P?` Taper plan step ${P.i+1}: limit ${P.v} ${P.t.u}${P.t.k==="str"?" (strength)":" per day"}, used today ${used()}.`:"")}
 function saved(){
   const a=S.sp&&S.sp.a;if(!(a>0))return 0;
   const P=pl(),D=864e5;
@@ -666,6 +797,8 @@ function renderStats(){
   const ms=Math.max(0,Date.now()-S.last),best=Math.max(ms,...S.hist.map(x=>x.end-x.start));
   $("stSave").textContent=(S.sp&&S.sp.c||"")+Math.round(saved()).toLocaleString();
   $("stBest").textContent=dur(best);$("stUrge").textContent=S.urges;
+  const sa=S.sp&&S.sp.a,sc=(S.sp&&S.sp.c)||"";
+  $("spNote").textContent=sa>0?`Baseline: ${sc}${Math.round(sa).toLocaleString()} a day, about ${sc}${Math.round(sa*30).toLocaleString()} a month and ${sc}${Math.round(sa*365).toLocaleString()} a year.`:"";
 }
 $("spCur").oninput=$("spAmt").oninput=()=>{S.sp={c:$("spCur").value,a:parseFloat($("spAmt").value)||0};save()};
 if(S.sp){$("spCur").value=S.sp.c||"";$("spAmt").value=S.sp.a||""}
@@ -706,7 +839,7 @@ function renderCheer(h){if(cheerI===-1)$("cheer").textContent=STAGE_ENC[idx(h)]}
 const _render=render;render=function(){_render();renderCheer(Math.max(0,Date.now()-S.last)/H);renderNowPlan();renderStats()};
 
 // ---- AI assistant (uses the page's "sample" capability) ----
-const SYS="You are a friendly, knowledgeable AI chat assistant inside a nicotine-quit tracker app. Answer any question the user asks, on any topic, clearly and helpfully, in plain text with no markdown or bullet symbols. Keep answers short (about 150 words) unless they ask for more. When the question relates to nicotine, withdrawal, cravings, tapering or their progress, use the tracker context to tailor your answer, give 2 or 3 practical steps and add a brief word of encouragement. You are not a doctor: do not diagnose or give personal medication doses, and point to a pharmacist or doctor for those. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm, or severe or lasting low mood, tell them to contact emergency services, a doctor or a crisis line right away. If they had a slip, respond without judgment.";
+const SYS="You are a friendly, knowledgeable AI chat assistant inside a nicotine-quit tracker app. Answer any question the user asks, on any topic, clearly and helpfully. Use light markdown when it helps (bold for key points, short bullet or numbered lists) and no tables. Keep answers short (about 150 words) unless they ask for more. When the question relates to nicotine, withdrawal, cravings, tapering or their progress, use the tracker context to tailor your answer, give 2 or 3 practical steps and add a brief word of encouragement. You are not a doctor: do not diagnose or give personal medication doses, and point to a pharmacist or doctor for those. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm, or severe or lasting low mood, tell them to contact emergency services, a doctor or a crisis line right away. If they had a slip, respond without judgment.";
 // Built-in guide, used when AI replies are not available in this view
 const EMERG=/chest pain|can'?t breathe|cannot breathe|trouble breathing|short of breath|faint|passed out|suicid|kill myself|hurt myself|self.?harm|end my life|want to die/i;
 const GUIDE=[
@@ -731,7 +864,33 @@ function localAnswer(q){
   return `${body}\n\nRight now you are in "${st[1]}" (${dur(ms)} since your last use). ${GEN[Math.floor(Math.random()*GEN.length)]}\n\n(Built-in guide. AI replies aren't available in this view. Open the page from the Claude app or claude.ai chat to use the AI.)`;
 }
 let aHist=[],aBusy=false;
-function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.textContent=t;$("aLog").appendChild(d);return d}
+function md(src){
+  const e=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const inl=s=>e(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*\w])\*([^*\s][^*]*)\*/g,"$1<em>$2</em>").replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"']+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  const lines=String(src).replace(/\r/g,"").split("\n");let out="",list=null,para=[];
+  const flushP=()=>{if(para.length){out+="<p>"+para.map(inl).join("<br>")+"</p>";para=[]}};
+  const closeL=()=>{if(list){out+="</"+list+">";list=null}};
+  for(const ln of lines){
+    let m;
+    if(!ln.trim()){flushP();closeL();continue}
+    if(m=ln.match(/^\s*#{1,4}\s+(.*)/)){flushP();closeL();out+="<h4>"+inl(m[1])+"</h4>";continue}
+    if(m=ln.match(/^\s*[-*\u2022]\s+(.*)/)){flushP();if(list!=="ul"){closeL();out+="<ul>";list="ul"}out+="<li>"+inl(m[1])+"</li>";continue}
+    if(m=ln.match(/^\s*\d+[.)]\s+(.*)/)){flushP();if(list!=="ol"){closeL();out+="<ol>";list="ol"}out+="<li>"+inl(m[1])+"</li>";continue}
+    closeL();para.push(ln);
+  }
+  flushP();closeL();return out;
+}
+function bubble(cls,t){
+  const log=$("aLog"),row=document.createElement("div"),m=document.createElement("div"),ts=document.createElement("div");
+  row.className="row "+cls;m.className="msg "+cls;ts.className="ts";
+  ts.textContent=new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+  const down=()=>{log.scrollTop=log.scrollHeight};
+  if(cls==="a"){
+    Object.defineProperty(m,"textContent",{configurable:true,get(){return m.dataset.raw||""},set(v){v=String(v);m.dataset.raw=v;m.innerHTML=md(v);down()}});
+    if(t==="Thinking...")m.innerHTML='<span class="typing" role="status" aria-label="AI is typing"><i></i><i></i><i></i></span>';else m.textContent=t;
+  }else m.textContent=t;
+  row.append(m,ts);log.appendChild(row);down();return m;
+}
 const EMERGMSG="This could be serious. Please contact your local emergency number or a doctor right now. If you are thinking about harming yourself, call a crisis line or emergency services, or reach out to someone near you immediately. You don't have to handle this alone.";
 const AIK="nic_ai",GEM="https://generativelanguage.googleapis.com/v1beta/models";
 const PRE={gemini:{m:"gemini-2.5-flash"},openrouter:{u:"https://openrouter.ai/api/v1",m:""},groq:{u:"https://api.groq.com/openai/v1",m:"llama-3.3-70b-versatile"},ollama:{u:"http://localhost:11434/v1",m:"llama3.2"},custom:{u:"",m:""}};
@@ -782,9 +941,9 @@ $("aiFind").onclick=async()=>{aiRead();
     $("aiMsg").textContent=names.length?`Found ${names.length} models. Tap the Model box to pick one.`:"No models found.";
   }catch(e){$("aiMsg").textContent=aiErr(e)}
 };
-async function ask(q){
+async function ask(q,label){
   q=q.trim();if(!q||aBusy)return;aBusy=true;$("aGo").disabled=true;$("aIn").value="";
-  bubble("u",q);const out=bubble("a","Thinking...");
+  bubble("u",label||q);const out=bubble("a","Thinking...");
   aHist.push({role:"user",content:q});
   const em=EMERG.test(q)?EMERGMSG+"\n\n":"";
   try{
@@ -796,9 +955,10 @@ async function ask(q){
   }catch(e){aHist.pop();out.textContent=em+aiErr(e)}
   aBusy=false;$("aGo").disabled=false;
 }
+bubble("a","Hi, I'm here for **cravings**, **withdrawal** or any question you have. What's on your mind?");
 $("aGo").onclick=()=>ask($("aIn").value);
 $("aIn").onkeydown=e=>{if(e.key==="Enter")ask($("aIn").value)};
-$("aChips").onclick=e=>{if(e.target.tagName==="BUTTON")ask(e.target.textContent)};
+$("aChips").onclick=e=>{const b=e.target.closest("button");if(b)ask(b.dataset.q||b.textContent,b.textContent)};
 
 // ---- Taper planner ----
 function taperSteps(a,p){
@@ -819,6 +979,7 @@ if(S.tp){$("tA").value=S.tp.a;$("tU").value=S.tp.u;$("tP").value=S.tp.p;$("tD").
 renderTaper();
 
 save();render();setInterval(render,1000);
+if(!S.onb&&!S.tp&&!S.sp)wzOpen();
 </script>
 </body>
 </html>
