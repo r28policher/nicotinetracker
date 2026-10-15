@@ -136,11 +136,28 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
 </section>
 
 <section class="card" id="assist">
-  <h2>Ask about your withdrawal</h2>
-  <p class="small">An AI companion that knows how long you've been nicotine-free. Ask about any symptom or craving.</p>
+  <h2>AI chat</h2>
+  <p class="small">Ask anything about withdrawal, cravings or quitting. The AI knows how long you've been nicotine-free and what your plan says today. Works in any browser. Just add your free key once in the setup below.</p>
   <div class="chips" id="aChips"><button>I have a headache</button><button>I can't sleep</button><button>I'm very irritable</button><button>I feel anxious</button><button>I have a strong craving now</button></div>
   <div id="aLog" aria-live="polite"></div>
-  <div class="gadd"><input id="aIn" maxlength="400" placeholder="Describe what you feel" aria-label="Your question"><button class="main" id="aGo">Send</button></div>
+  <div class="gadd"><input id="aIn" maxlength="400" placeholder="Ask anything" aria-label="Your question"><button class="main" id="aGo">Send</button></div>
+  <details id="aiSet" style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:600">Set up the AI (one time)</summary>
+    <p class="small" style="margin-top:8px">Get a free Gemini key at aistudio.google.com, paste it here and tap Save and test. That is all you need.</p>
+    <label class="small" for="aiK" style="display:block;margin-top:8px">Gemini API key</label>
+    <input id="aiK" type="password" autocomplete="off" placeholder="Paste your key">
+    <div class="btns"><button class="main" id="aiSave">Save and test</button></div>
+    <p class="small" id="aiMsg" style="margin-top:8px" role="status"></p>
+    <details style="margin-top:6px"><summary class="small" style="cursor:pointer">Advanced: other models or providers</summary>
+      <label class="small" for="aiP" style="display:block;margin-top:10px">Provider</label>
+      <select id="aiP" style="width:100%"><option value="gemini">Google Gemini</option><option value="openrouter">OpenRouter (open models)</option><option value="groq">Groq (open models)</option><option value="ollama">Ollama (on your computer)</option><option value="custom">Other OpenAI-compatible</option></select>
+      <label class="small" for="aiM" style="display:block;margin-top:8px">Model</label>
+      <input id="aiM" list="aiList" autocomplete="off" placeholder="e.g. gemini-2.5-flash"><datalist id="aiList"></datalist>
+      <div id="aiUw"><label class="small" for="aiU" style="display:block;margin-top:8px">Base URL</label><input id="aiU" autocomplete="off" placeholder="https://.../v1"></div>
+      <div class="btns"><button id="aiTest">Test</button><button id="aiFind">Find models</button></div>
+      <p class="small" style="margin-top:8px">If Test says the model wasn't found, tap Find models and pick one from the list. Model names change over time.</p>
+    </details>
+    <p class="small">Your key is stored only in this browser and is never included in backups. Your messages go to the provider you use, so check their data terms.</p>
+  </details>
   <p class="small" style="margin-top:8px">AI support, not a doctor. For chest pain, trouble breathing, fainting or thoughts of self-harm, contact emergency services or a doctor right away.</p>
 </section>
 
@@ -266,12 +283,12 @@ textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px 
 
 <section class="card" id="backup">
   <h2>Backup and sync</h2>
-  <p class="small">Enter a username to save your progress online. On another phone, open this page signed in to the same claude.ai account, enter the same username and tap Restore. Backups are private to your account, and the username only names the backup.</p>
-  <label class="small" for="bkName" style="display:block;margin-top:10px">Username</label>
-  <input id="bkName" maxlength="24" autocomplete="off" autocapitalize="off" placeholder="e.g. juan_quits">
-  <div class="btns"><button class="main" id="bkNow">Back up now</button><button id="bkRestore">Restore backup</button></div>
+  <p class="small">Tap Make code, keep the code somewhere safe (notes or chat to yourself), and paste it on another phone with Load code to restore your progress.</p>
+  <label class="small" for="bkName" style="display:none">Username</label>
+  <input id="bkName" style="display:none">
+  <div class="btns" style="display:none"><button id="bkNow">Back up now</button><button id="bkRestore">Restore backup</button></div>
   <p class="small" id="bkMsg" style="margin-top:10px" role="status"></p>
-  <details style="margin-top:8px"><summary class="small" style="cursor:pointer">No sign-in? Use a backup code instead</summary>
+  <details open style="margin-top:8px"><summary class="small" style="cursor:pointer">Backup code</summary>
     <textarea id="bkCode" rows="3" aria-label="Backup code" placeholder="Your backup code appears here, or paste one to restore"></textarea>
     <div class="btns"><button id="bkCopy">Make code</button><button id="bkLoad">Load code</button></div>
   </details>
@@ -689,27 +706,94 @@ function renderCheer(h){if(cheerI===-1)$("cheer").textContent=STAGE_ENC[idx(h)]}
 const _render=render;render=function(){_render();renderCheer(Math.max(0,Date.now()-S.last)/H);renderNowPlan();renderStats()};
 
 // ---- AI assistant (uses the page's "sample" capability) ----
-const SYS="You are a warm, concise support companion inside a nicotine-quit tracker. The user asks about withdrawal symptoms and cravings. Answer in plain text only (no markdown, no bullet symbols), about 120 words at most. Explain what is typical for their current phase, give 2 or 3 practical coping steps, and end with a short word of encouragement. You are not a doctor: do not diagnose and do not give personal medication doses; for replacement products point to the package label or a pharmacist or doctor. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm, or severe or lasting low mood, tell them to contact emergency services, a doctor or a crisis line right away. If they had a slip, respond without judgment.";
+const SYS="You are a friendly, knowledgeable AI chat assistant inside a nicotine-quit tracker app. Answer any question the user asks, on any topic, clearly and helpfully, in plain text with no markdown or bullet symbols. Keep answers short (about 150 words) unless they ask for more. When the question relates to nicotine, withdrawal, cravings, tapering or their progress, use the tracker context to tailor your answer, give 2 or 3 practical steps and add a brief word of encouragement. You are not a doctor: do not diagnose or give personal medication doses, and point to a pharmacist or doctor for those. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm, or severe or lasting low mood, tell them to contact emergency services, a doctor or a crisis line right away. If they had a slip, respond without judgment.";
+// Built-in guide, used when AI replies are not available in this view
+const EMERG=/chest pain|can'?t breathe|cannot breathe|trouble breathing|short of breath|faint|passed out|suicid|kill myself|hurt myself|self.?harm|end my life|want to die/i;
+const GUIDE=[
+[/crav|urge|want (one|it|to (smoke|vape|use))|tempt|give in/,"Urges peak and pass within 3 to 5 minutes. Tap Craving now to start the 5-minute timer, sip cold water, breathe in for 4 and out for 6, and move around for a few minutes. Hold off on deciding until the timer ends."],
+[/headache|head hurts|migraine/,"Headaches are common in the first days (often days 1 to 3) as your body adjusts. Drink water, eat regularly and rest somewhere quiet. Caffeine can feel stronger once you cut nicotine, so you may want less. Ask a pharmacist about a suitable pain reliever, and see a doctor if it is severe, sudden or lasts more than a couple of weeks."],
+[/sleep|insomnia|awake|nightmare|dream/,"Sleep often gets lighter in the first 1 to 2 weeks. Keep a fixed bedtime, skip caffeine after midday, keep screens away for an hour before bed, and try slow breathing or a warm shower. It usually improves within a few weeks."],
+[/irritab|angry|anger|mood|snap|short temper|frustrat/,"Irritability is one of the most common signs and often peaks around days 2 to 3. Tell people close to you that you are cutting down, take a short walk or a breathing break before reacting, and remember it is temporary."],
+[/anxi|nervous|restless|panic|jitter|on edge|stress/,"Anxiety and restlessness are common withdrawal effects. Try slow breathing (in for 4, out for 6, five times), a short walk, and less caffeine. If it feels intense or you have panic attacks, please talk to a doctor."],
+[/concentrat|focus|fog|forget|distract/,"Trouble focusing is normal early on and improves over 2 to 4 weeks. Work in short blocks of 20 to 25 minutes, take movement breaks, keep water nearby and write tasks down."],
+[/hungry|appetite|eat|weight|snack/,"Appetite often rises. Keep crunchy low-calorie snacks like carrots or apple slices, sip water, eat regular meals and take a short walk after eating. This usually settles within a few weeks."],
+[/cough|throat|phlegm|lungs|mucus/,"A temporary cough can appear as your airways clear. Stay hydrated and rest. Chest pain, trouble breathing or coughing up blood needs a doctor right away."],
+[/tired|fatigue|exhaust|energy|sleepy|weak/,"Tiredness is common in the first week or two. Prioritise sleep, eat regular meals and do light exercise like a walk. Energy usually comes back as your body adjusts."],
+[/sad|depress|low mood|hopeless|cry|empty|lonely/,"Low mood can show up during withdrawal and usually lifts over a few weeks. Keep your routines, get daylight and talk to someone you trust. If it lasts or feels heavy, speak to a doctor."],
+[/nause|dizz|stomach|constipat|bloat|sweat/,"Some people get dizziness, stomach upset, constipation or sweating. Drink water, eat fibre, and move around gently. If it is severe or does not ease, see a doctor."],
+[/slip|relaps|gave in|used again|smoked|vaped|had (one|some)|failed/,"A slip is not the end. Tap I just had nicotine so your log stays honest, note what triggered it, and start again right away. Most people need several tries, and your earlier progress still counts."]
+];
+function localAnswer(q){
+  const ms=Math.max(0,Date.now()-S.last),st=STAGES[idx(ms/H)];
+  if(EMERG.test(q))return "This could be serious. Please contact your local emergency number or a doctor right now. If you are thinking about harming yourself, call a crisis line or emergency services, or reach out to someone near you immediately. You don't have to handle this alone.";
+  const m=GUIDE.find(g=>g[0].test(q.toLowerCase()));
+  const body=m?m[1]:"I can help with cravings, headaches, sleep, irritability, anxiety, focus, appetite, cough, tiredness, low mood and slips. Tell me which one you feel, or tap one of the quick buttons above.";
+  return `${body}\n\nRight now you are in "${st[1]}" (${dur(ms)} since your last use). ${GEN[Math.floor(Math.random()*GEN.length)]}\n\n(Built-in guide. AI replies aren't available in this view. Open the page from the Claude app or claude.ai chat to use the AI.)`;
+}
 let aHist=[],aBusy=false;
 function bubble(cls,t){const d=document.createElement("div");d.className="msg "+cls;d.textContent=t;$("aLog").appendChild(d);return d}
+const EMERGMSG="This could be serious. Please contact your local emergency number or a doctor right now. If you are thinking about harming yourself, call a crisis line or emergency services, or reach out to someone near you immediately. You don't have to handle this alone.";
+const AIK="nic_ai",GEM="https://generativelanguage.googleapis.com/v1beta/models";
+const PRE={gemini:{m:"gemini-2.5-flash"},openrouter:{u:"https://openrouter.ai/api/v1",m:""},groq:{u:"https://api.groq.com/openai/v1",m:"llama-3.3-70b-versatile"},ollama:{u:"http://localhost:11434/v1",m:"llama3.2"},custom:{u:"",m:""}};
+let AI={p:"gemini",k:"",m:"",u:""};
+try{AI={...AI,...JSON.parse(localStorage.getItem(AIK)||"{}")}}catch(e){}
+const aiRead=()=>{AI={p:$("aiP").value,k:$("aiK").value.trim(),m:$("aiM").value.trim(),u:$("aiU").value.trim()}};
+function aiShow(){$("aiP").value=AI.p;$("aiK").value=AI.k;$("aiM").value=AI.m;$("aiU").value=AI.u;$("aiUw").style.display=AI.p==="gemini"?"none":"block";$("aiM").placeholder="e.g. "+(PRE[AI.p].m||"model name");$("aiU").placeholder=PRE[AI.p].u||"https://.../v1"}
+$("aiP").onchange=()=>{AI={p:$("aiP").value,k:AI.k,m:"",u:""};aiShow()};
+$("aiSave").onclick=()=>{aiRead();try{localStorage.setItem(AIK,JSON.stringify(AI))}catch(e){}$("aiTest").onclick()};
+aiShow();if(!AI.k&&AI.p==="gemini")$("aiSet").open=true;
+async function callAI(msgs){
+  if(AI.p==="gemini"){
+    if(!AI.k)throw{code:"nokey"};
+    const m=AI.m||PRE.gemini.m;
+    const r=await fetch(`${GEM}/${encodeURIComponent(m)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":AI.k},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:msgs.map(x=>({role:x.role==="assistant"?"model":"user",parts:[{text:x.content}]})),generationConfig:{maxOutputTokens:900,temperature:.6}})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&d.error.message};
+    const t=((d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts)||[]).map(x=>x.text||"").join("").trim();
+    if(!t)throw{code:"empty"};return t;
+  }
+  const base=(AI.u||PRE[AI.p].u||"").replace(/\/$/,""),m=AI.m||PRE[AI.p].m;
+  if(!base||!m)throw{code:"noconf"};
+  if(AI.p!=="ollama"&&!AI.k)throw{code:"nokey"};
+  const r=await fetch(base+"/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",...(AI.k?{Authorization:"Bearer "+AI.k}:{})},body:JSON.stringify({model:m,messages:[{role:"system",content:SYS},...msgs],max_tokens:700,temperature:.6})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&(d.error.message||d.error)};
+  const t=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||"").trim();
+  if(!t)throw{code:"empty"};return t;
+}
+function aiErr(e){
+  if(e.code==="nokey")return "Add your key under \"Set up the AI\" in this card, then tap Save and test.";
+  if(e.code==="noconf")return "Add the base URL and model name under Advanced in \"Set up the AI\", then tap Save and test.";
+  if(e.code==="empty")return "The AI sent an empty reply. Try again, or pick another model.";
+  if(e.code==="http"){const s=e.status;
+    if(s===401||s===403)return "The provider rejected your key. Check it under \"Set up the AI\".";
+    if(s===404)return "Model not found. Open Advanced under \"Set up the AI\", tap Find models and pick one.";
+    if(s===429)return "Rate limit reached. Wait a minute and try again.";
+    return `The provider returned an error (${s}). ${e.msg||""}`.trim()}
+  return "Couldn't reach the provider. Check your internet connection and the settings (for Ollama, it must be running and allow this page's origin).";
+}
+$("aiTest").onclick=async()=>{aiRead();$("aiMsg").textContent="Testing...";try{const t=await callAI([{role:"user",content:"Reply with the single word: connected"}]);$("aiMsg").textContent="Works: "+t.slice(0,60)}catch(e){$("aiMsg").textContent=aiErr(e)}};
+$("aiFind").onclick=async()=>{aiRead();
+  try{
+    let names=[];
+    if(AI.p==="gemini"){if(!AI.k)throw{code:"nokey"};const r=await fetch(GEM+"?pageSize=100",{headers:{"x-goog-api-key":AI.k}});const d=await r.json();if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&d.error.message};names=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes("generateContent")).map(m=>m.name.replace("models/",""))}
+    else{const base=(AI.u||PRE[AI.p].u||"").replace(/\/$/,"");const r=await fetch(base+"/models",{headers:AI.k?{Authorization:"Bearer "+AI.k}:{}});const d=await r.json();if(!r.ok)throw{code:"http",status:r.status};names=(d.data||[]).map(m=>m.id)}
+    $("aiList").innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
+    $("aiMsg").textContent=names.length?`Found ${names.length} models. Tap the Model box to pick one.`:"No models found.";
+  }catch(e){$("aiMsg").textContent=aiErr(e)}
+};
 async function ask(q){
   q=q.trim();if(!q||aBusy)return;aBusy=true;$("aGo").disabled=true;$("aIn").value="";
   bubble("u",q);const out=bubble("a","Thinking...");
   aHist.push({role:"user",content:q});
+  const em=EMERG.test(q)?EMERGMSG+"\n\n":"";
   try{
-    const sample=typeof claude!=="undefined"?await claude.use("sample"):null;
-    if(!sample)throw{code:"none"};
     const ms=Math.max(0,Date.now()-S.last),st=STAGES[idx(ms/H)];
-    let msgs=aHist.length>7?aHist.slice(aHist.length-7):aHist.slice();
-    msgs=msgs.map(m=>({...m}));
-    msgs[0].content=SYS+"\n\n"+msgs[0].content;
+    const msgs=(aHist.length>7?aHist.slice(aHist.length-7):aHist.slice()).map(m=>({...m}));
     msgs[msgs.length-1].content+=`\n\n[Tracker context: ${dur(ms)} since last nicotine, phase "${st[1]}". Times restarted: ${S.hist.length}.${planCtx()}]`;
-    const r=await sample(msgs,{cache:false,onText:({text})=>{out.textContent=text}});
-    out.textContent=r.text;aHist.push({role:"assistant",content:r.text});
-  }catch(e){
-    aHist.pop();
-    out.textContent=e.code==="not_granted"?"Permission wasn't granted. Send again and allow it to use the assistant.":e.code==="rate_limited"?"Too many questions at once. Wait a moment and try again.":e.code==="none"?"The assistant isn't available in this view. Open the page from your claude.ai link while signed in.":"Something went wrong. Please try again.";
-  }
+    const t=em+await callAI(msgs);
+    out.textContent=t;aHist.push({role:"assistant",content:t});
+  }catch(e){aHist.pop();out.textContent=em+aiErr(e)}
   aBusy=false;$("aGo").disabled=false;
 }
 $("aGo").onclick=()=>ask($("aIn").value);
