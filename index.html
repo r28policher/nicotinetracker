@@ -1,985 +1,222 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Since my last nicotine</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<title>Quit Tracker v2 (AI engines)</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#e8efec;--card:#f7faf8;--ink:#12302c;--mute:#556b66;--line:#cbd9d4;--acc:#1f7a72;--warn:#c98a00;--bad:#b3452f;--bub:#e3e9e6;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f;--bub:#26373a}}
-:root[data-theme="dark"]{--bg:#0e1b19;--card:#152624;--ink:#e3efeb;--mute:#93aba5;--line:#28403c;--acc:#4cc2b6;--warn:#e5b13a;--bad:#e2795f;--bub:#26373a}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5}
-main{max-width:640px;margin:0 auto;padding:20px 16px 104px}
-h1{font-size:15px;font-weight:600;color:var(--mute);margin:8px 0 12px}
-h2{font-size:18px;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
-.clock{display:flex;gap:6px;justify-content:space-between;text-align:center}
-.clock div{flex:1}
-.clock b{display:block;font-size:clamp(38px,12vw,60px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
-.clock span{font-size:13px;color:var(--mute)}
-.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin:16px 0 6px}
-.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .6s}
-.small{font-size:13px;color:var(--mute);margin:0}
-.btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-button{font:inherit;font-weight:600;border-radius:12px;padding:12px 16px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-button.main{background:var(--ink);color:var(--bg);border-color:var(--ink);flex:1}
-button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-input{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
-ul{margin:8px 0 0;padding-left:20px}li{margin:4px 0}
-.now{border-color:var(--acc);border-width:2px}
-.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 10px;border-radius:20px;background:var(--acc);color:var(--bg)}
-.meter{display:inline-flex;gap:3px;vertical-align:middle;margin-left:6px}
-.meter i{width:14px;height:6px;border-radius:3px;background:var(--line)}
-.meter i.on{background:var(--warn)}.meter i.hot{background:var(--bad)}
-.stage{border-left:3px solid var(--line);padding:2px 0 2px 14px;margin:0 0 16px;opacity:.6}
-.stage.cur{border-color:var(--acc);opacity:1}.stage.fut{opacity:1}
-.stage h3{font-size:16px;margin:0}.stage .t{font-size:13px;color:var(--mute)}
-.again{border-color:var(--warn)}
-.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
-.tips h3{font-size:15px;margin:18px 0 0;color:var(--acc)}
-.urge{display:flex;align-items:baseline;gap:12px;margin-top:12px}
-.urge b{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
-.goal{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
-.goal label{flex:1;display:flex;align-items:center;gap:10px;cursor:pointer}
-.goal input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc);flex:none}
-.goal.ok span{text-decoration:line-through;color:var(--mute)}
-.goal .x{padding:2px 10px;border:0;color:var(--mute);font-size:18px}
-.gadd{display:flex;gap:8px;margin-top:10px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chips button{font-weight:400;font-size:13px;padding:6px 12px;border-radius:20px}
-.bh{font-size:15px;margin:14px 0 8px;color:var(--acc)}
-.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:12px}
-.bd{text-align:center;opacity:.45}
-.bd b{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 6px;border-radius:50%;border:2px dashed var(--line);font-size:16px}
-.bd span{display:block;font-size:12px;line-height:1.3}
-.bd.on{opacity:1}.bd.on b{background:var(--acc);color:var(--bg);border:2px solid var(--acc)}
-.cheer{background:var(--acc);border-color:var(--acc);color:var(--bg)}
-.cheer p{margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.35}
-.cheer button{background:transparent;color:var(--bg);border-color:var(--bg);font-size:13px;padding:8px 14px}
-table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
-th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
-.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-.tgrid label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:4px}
-select{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-#tOut{padding-left:22px}#tOut li.cur{font-weight:700;color:var(--acc)}
-.goal .u{padding:2px 12px;font-size:20px;line-height:1.2}
-.goal .cnt{min-width:26px;text-align:center;font-size:18px}
-#gPlan a{color:var(--acc);font-weight:600}
-#wList details{border-top:1px solid var(--line);padding:10px 0}
-#wList summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-weight:600;font-size:14px}
-#wList .cur summary{color:var(--acc)}
-#wList .wl{font-weight:400;color:var(--mute)}
-#wList .tg{font-size:12px;font-weight:600;padding:1px 9px;border-radius:20px;border:1px solid var(--line)}
-#wList .cur .tg{background:var(--acc);color:var(--bg);border-color:var(--acc)}
-#wSub a{color:var(--acc);font-weight:600}
-.pn{font-size:12.5px;color:var(--acc);margin:2px 0 4px;font-weight:600}
-#tlPlan tr.cur td{font-weight:700;color:var(--acc)}
-#tlPlan a{color:var(--acc);font-weight:600}
-.np{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
-.np a{color:var(--acc);font-weight:600}
-.stp{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
-.stp span{font-size:12px;padding:3px 10px;border-radius:20px;border:1px solid var(--line);color:var(--mute)}
-.stp .past{opacity:.5}
-.stp .cur{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
-.stats{display:flex;gap:8px;margin-top:14px;text-align:center}
-.stats div{flex:1;padding:8px 4px;border:1px solid var(--line);border-radius:12px}
-.stats b{display:block;font-size:19px;font-variant-numeric:tabular-nums}.stats span{font-size:12px;color:var(--mute)}
-.spend{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:13px;color:var(--mute)}
-.spend input{padding:6px 8px}
-.whyline{margin:0 0 10px;font-size:13px;opacity:.9}
-.cheer input{background:var(--bg);color:var(--ink)}
-.qbar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
-.qbar button{flex:1;max-width:200px;padding:10px 6px;font-size:14px}
-.qbar #qCrave{background:var(--acc);border-color:var(--acc);color:var(--bg)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:90vw;text-align:center}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-textarea{font:inherit;font-size:12px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%;margin-top:8px}
-.hd{display:flex;justify-content:space-between;align-items:center}
-.lnk{padding:6px 12px;font-size:13px;border-radius:10px}
-.wiz{position:fixed;inset:0;z-index:20;background:rgba(8,20,18,.65);display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
-.wiz[hidden]{display:none}
-.wzc{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;max-width:460px;width:100%;max-height:100%;overflow:auto;padding:20px}
-.wzc h2{margin:6px 0 10px;font-size:22px}
-.wzd{display:flex;gap:6px}.wzd span{width:26px;height:6px;border-radius:4px;background:var(--line)}.wzd .on{background:var(--acc)}.wzd .done{background:var(--mute)}
-.opts{display:grid;gap:8px}
-.opt{text-align:left;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:transparent;color:var(--ink)}
-.opt.on{border-color:var(--acc);background:var(--bg)}
-.opt small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
-.wzc label{display:block;margin:12px 0 4px}
-.wzr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.wzc select{width:100%}
-.chat{padding:0;overflow:hidden}
-.chh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
-.chh .av{width:36px;height:36px;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
-.chh b{display:block;font-size:15px}.chh span{display:block;font-size:12px;color:var(--mute);line-height:1.3}
-#aLog{height:min(58vh,440px);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--card);overscroll-behavior:contain}
-.row{display:flex;flex-direction:column;max-width:86%}
-.row.u{align-self:flex-end;align-items:flex-end}.row.a{align-self:flex-start;align-items:flex-start}
-.msg{padding:10px 14px;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
-.msg.u{background:var(--acc);color:var(--bg);border-radius:18px 18px 4px 18px;white-space:pre-wrap}
-.msg.a{background:var(--bub);color:var(--ink);border-radius:18px 18px 18px 4px}
-.msg p{margin:0 0 8px}.msg ul,.msg ol{margin:0 0 8px;padding-left:20px}.msg h4{margin:0 0 6px;font-size:15px}
-.msg>:last-child{margin-bottom:0}
-.msg code{background:rgba(127,127,127,.2);padding:1px 5px;border-radius:5px;font-size:13px}
-.msg a{color:var(--acc);text-decoration:underline}
-.ts{font-size:11px;color:var(--mute);margin:3px 6px 0}
-.typing{display:inline-flex;gap:4px;padding:5px 0}.typing i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:bl 1.2s infinite}
-.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
-@keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
-.chips-h{display:flex;gap:8px;overflow-x:auto;padding:10px 14px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
-.chips-h::-webkit-scrollbar{display:none}
-.chips-h button{flex:none;white-space:nowrap;font-weight:500;font-size:13px;padding:8px 14px;border-radius:20px;border:1px solid var(--acc);color:var(--acc)}
-.cin{display:flex;gap:8px;align-items:center;padding:10px 14px 12px}
-.cin input{border-radius:22px;padding:11px 16px}
-.cin .send{width:44px;height:44px;border-radius:50%;padding:0;display:grid;place-items:center;flex:none;background:var(--acc);border-color:var(--acc);color:var(--bg)}
-.cin .send:disabled{opacity:.5}
-.cnote{padding:0 16px 14px;margin:0}
-.note{font-size:12.5px;color:var(--mute);margin-top:20px}
-</style>
-</head>
-<body>
-<main>
-<div class="hd"><h1>Time since my last nicotine</h1><button class="lnk" id="wzOpen">Setup</button></div>
-
-<section class="card" aria-live="off">
-  <div class="clock"><div><b id="d">0</b><span>days</span></div><div><b id="h">0</b><span>hours</span></div><div><b id="m">0</b><span>min</span></div><div><b id="s">0</b><span>sec</span></div></div>
-  <div class="bar"><i id="bar"></i></div>
-  <p class="small" id="next"></p>
-  <div class="stats"><div><b id="stSave">0</b><span>saved so far</span></div><div><b id="stBest">0</b><span>longest streak</span></div><div><b id="stUrge">0</b><span>urges beaten</span></div></div>
-  <div class="spend"><span>Daily spend</span><input id="spCur" placeholder="$" maxlength="3" aria-label="Currency symbol" style="width:58px"><input id="spAmt" type="number" min="0" placeholder="0" aria-label="Amount spent per day" style="width:96px"></div>
-  <p class="small" id="spNote" style="margin-top:4px"></p>
-  <div class="btns"><button class="main" id="took">I just had nicotine</button><button id="edit">Change time</button></div>
-  <div id="editBox" hidden style="margin-top:12px"><label class="small" for="dt">When was your last intake?</label><input type="datetime-local" id="dt"><div class="btns"><button class="main" id="save">Save time</button></div></div>
-</section>
-
-<section class="card cheer">
-  <p id="whyOut" class="whyline" hidden></p>
-  <p id="cheer"></p>
-  <button id="cheerBtn">Another word of encouragement</button>
-  <label class="small" for="whyIn" style="color:var(--bg);display:block;margin-top:14px">My reason for quitting</label>
-  <input id="whyIn" maxlength="120" placeholder="For my health, my family, my savings...">
-</section>
-
-<section class="card now">
-  <span class="pill">Right now</span>
-  <h2 id="nowT" style="margin-top:10px"></h2>
-  <p class="small">Craving strength <span class="meter" id="nowM"></span></p>
-  <ul id="nowL"></ul>
-  <div class="np" id="nowPlan"></div>
-</section>
-
-<section class="card chat" id="assist">
-  <div class="chh"><div class="av" aria-hidden="true">AI</div><div><b>AI chat</b><span id="aStatus">Ask me anything</span></div></div>
-  <div style="padding:10px 16px 0"><details id="aiSet" style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:600">Set up the AI (one time)</summary>
-    <p class="small" style="margin-top:8px">Get a free Gemini key at aistudio.google.com, paste it here and tap Save and test. That is all you need.</p>
-    <label class="small" for="aiK" style="display:block;margin-top:8px">Gemini API key</label>
-    <input id="aiK" type="password" autocomplete="off" placeholder="Paste your key">
-    <div class="btns"><button class="main" id="aiSave">Save and test</button></div>
-    <p class="small" id="aiMsg" style="margin-top:8px" role="status"></p>
-    <details style="margin-top:6px"><summary class="small" style="cursor:pointer">Advanced: other models or providers</summary>
-      <label class="small" for="aiP" style="display:block;margin-top:10px">Provider</label>
-      <select id="aiP" style="width:100%"><option value="gemini">Google Gemini</option><option value="openrouter">OpenRouter (open models)</option><option value="groq">Groq (open models)</option><option value="ollama">Ollama (on your computer)</option><option value="custom">Other OpenAI-compatible</option></select>
-      <label class="small" for="aiM" style="display:block;margin-top:8px">Model</label>
-      <input id="aiM" list="aiList" autocomplete="off" placeholder="e.g. gemini-2.5-flash"><datalist id="aiList"></datalist>
-      <div id="aiUw"><label class="small" for="aiU" style="display:block;margin-top:8px">Base URL</label><input id="aiU" autocomplete="off" placeholder="https://.../v1"></div>
-      <div class="btns"><button id="aiTest">Test</button><button id="aiFind">Find models</button></div>
-      <p class="small" style="margin-top:8px">If Test says the model wasn't found, tap Find models and pick one from the list. Model names change over time.</p>
-    </details>
-    <p class="small">Your key is stored only in this browser and is never included in backups. Your messages go to the provider you use, so check their data terms.</p>
-  </details></div>
-  <div id="aLog" aria-live="polite"></div>
-  <div class="chips-h" id="aChips">
-    <button data-q="I need help right now. I'm having a strong craving or feeling overwhelmed. What can I do in the next few minutes?">I need help right now</button>
-    <button data-q="Why does coffee trigger my nicotine cravings, and how can I handle it?">Why is coffee triggering me?</button>
-    <button data-q="How do I use nicotine patches properly, and what should I watch out for?">How do I use nicotine patches?</button>
-  </div>
-  <div class="cin"><input id="aIn" maxlength="400" placeholder="Message" aria-label="Your message" autocomplete="off"><button class="send" id="aGo" aria-label="Send message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
-  <p class="small cnote">AI support, not a doctor. For chest pain, trouble breathing, fainting or thoughts of self-harm, contact emergency services or a doctor right away.</p>
-</section>
-
-<section class="card goals">
-  <h2>Today's goals</h2>
-  <p class="small">These repeat every day. Finish all of them and stay within today's limit (or nicotine-free) to count the day.</p>
-  <p class="small" id="gPlan" style="margin-top:6px"></p>
-  <div id="gList"></div>
-  <div class="gadd"><input id="gIn" maxlength="60" placeholder="Add your own goal" aria-label="New goal"><button id="gBtn">Add</button></div>
-  <div class="chips" id="chips"></div>
-  <p class="small" id="gStat" style="margin-top:12px"></p>
-</section>
-
-<section class="card" id="weekly">
-  <h2>Weekly expectations</h2>
-  <p class="small" id="wSub"></p>
-  <div id="wList"></div>
-</section>
-
-<section class="card">
-  <h2>Achievement board</h2>
-  <p class="small" id="bSum" style="margin-bottom:12px"></p>
-  <h3 class="bh">Time nicotine-free</h3>
-  <div class="badges" id="bTime"></div>
-  <h3 class="bh">Habits</h3>
-  <div class="badges" id="bHab"></div>
-  <h3 class="bh">Taper plan</h3>
-  <div class="badges" id="bTap"></div>
-</section>
-
-<section class="card again">
-  <h2>If I take nicotine again now</h2>
-  <ul id="againL"></ul>
-</section>
-
-<section class="card tips">
-  <h2>Craving right now? Wait 5 minutes</h2>
-  <p class="small">Most urges peak and fade within 3 to 5 minutes. Start the timer and use a tip below.</p>
-  <div class="urge"><b id="uT">5:00</b><span id="uMsg" class="small">Ready when you are</span></div>
-  <div class="btns"><button class="main" id="uGo">Start 5 minute urge timer</button></div>
-  <h3>Ways to ride it out</h3>
-  <ul>
-    <li><b>Delay:</b> tell yourself "not for 10 more minutes", then repeat.</li>
-    <li><b>Breathe:</b> in for 4 seconds, out for 6, five times.</li>
-    <li><b>Drink:</b> a glass of cold water, slowly.</li>
-    <li><b>Move:</b> a 5 minute walk, stairs, or stretching changes your state fast.</li>
-    <li><b>Change place:</b> leave the spot where you usually use nicotine.</li>
-    <li><b>Tell someone:</b> text a friend "having a craving, talk to me for 5 min".</li>
-  </ul>
-  <h3>Something for your hands and mouth</h3>
-  <ul>
-    <li>Sugar-free gum, mints or cinnamon sticks</li>
-    <li>Crunchy snacks: carrots, apple slices, nuts, sunflower seeds</li>
-    <li>A straw or toothpick to chew on</li>
-    <li>A stress ball, pen or fidget toy</li>
-  </ul>
-  <h3>Beat your triggers</h3>
-  <ul>
-    <li><b>Coffee or alcohol:</b> cut back for the first weeks, they are strong triggers.</li>
-    <li><b>After meals:</b> brush your teeth or go for a short walk right away.</li>
-    <li><b>Stress:</b> try a breathing exercise, music or a shower instead.</li>
-    <li><b>Boredom:</b> keep a short list of quick things to do (game, call, chores).</li>
-    <li><b>Sleep and food:</b> tiredness and hunger make cravings stronger, so eat regularly and sleep enough.</li>
-  </ul>
-  <h3>Replacement options</h3>
-  <ul>
-    <li><b>Nicotine patch, gum or lozenge:</b> gives a steady, lower dose without smoke or vape chemicals, and you cut down step by step. Useful if withdrawal is hard.</li>
-    <li><b>Prescription medicines:</b> a doctor can discuss options such as varenicline or bupropion.</li>
-    <li><b>Quitline or app:</b> free coaching is available in many countries. Search for your local quitline.</li>
-  </ul>
-  <p class="small">Ask a pharmacist or doctor before starting any replacement, especially if you are pregnant, have heart problems or take other medicines.</p>
-</section>
-
-<section class="card tips" id="taper">
-  <h2>Slow tapering guide</h2>
-  <p class="small">There is no single "correct" amount, because products and people differ. The common approach is to step down gradually, then stop once you reach a very low level.</p>
-  <h3>General rule of thumb</h3>
-  <ul>
-    <li>Cut about <b>25% every 1 to 2 weeks</b> (some people use 10% for a gentler pace, others 50%).</li>
-    <li>Hold a step longer if cravings feel too strong. Going back a step is fine.</li>
-    <li>Most plans take <b>4 to 12 weeks</b>. Go slower rather than faster.</li>
-    <li>Cut the easiest uses first (boredom, habit), keep the hardest ones (morning, after meals) for last.</li>
-  </ul>
-  <h3>Examples by product</h3>
-  <ul>
-    <li><b>Cigarettes:</b> 20 a day, then 15, 10, 5, then stop. About 1 to 2 mg of nicotine reaches your body per cigarette.</li>
-    <li><b>Vape:</b> lower the liquid strength step by step, for example 50, 35, 20, 10, 5, then 0 mg/ml, or reduce the number of puffs or pods per day.</li>
-    <li><b>Pouches or gum:</b> move to a lower strength, then space out the time between uses.</li>
-  </ul>
-  <h3>Typical replacement schedules (check your package)</h3>
-  <div style="overflow-x:auto"><table>
-    <tr><th>Product</th><th>Common step-down</th></tr>
-    <tr><td>Patch, more than 10 cigarettes a day</td><td>21 mg for 6 weeks, 14 mg for 2 weeks, 7 mg for 2 weeks</td></tr>
-    <tr><td>Patch, 10 or fewer a day</td><td>14 mg for 6 weeks, 7 mg for 2 weeks</td></tr>
-    <tr><td>Gum or lozenge</td><td>2 mg if your first use is more than 30 min after waking, 4 mg if sooner. About 1 piece every 1 to 2 h in weeks 1 to 6, every 2 to 4 h in weeks 7 to 9, every 4 to 8 h in weeks 10 to 12</td></tr>
-  </table></div>
-  <h3>Build my own plan</h3>
-  <div class="tgrid">
-    <label>How much now?<input type="number" id="tA" min="1" max="200" placeholder="20"></label>
-    <label>Unit<input id="tU" value="cigarettes per day" maxlength="30"></label>
-    <label>Cut each step<select id="tP"><option value="10">10%</option><option value="25" selected>25%</option><option value="33">33%</option><option value="50">50%</option></select></label>
-    <label>Plan type<select id="tK"><option value="day">Amount per day</option><option value="str">Strength</option></select></label>
-    <label>Step length<select id="tD"><option value="7">1 week</option><option value="10">10 days</option><option value="14" selected>2 weeks</option></select></label>
-  </div>
-  <div class="btns"><button class="main" id="tGo">Build my plan from today</button></div>
-  <p class="small" id="tSum" style="margin-top:10px"></p>
-  <ol id="tOut"></ol>
-  <p class="small">General information, not medical advice. Ask a pharmacist or doctor before using replacement products, especially if pregnant, under 18, or with heart conditions.</p>
-</section>
-
-<section class="card">
-  <h2>What usually happens, hour by hour</h2>
-  <p class="small" style="margin-bottom:14px">Typical patterns. Everyone is different, especially heavy vs. light users.</p>
-  <div id="tlPlan" style="margin-bottom:16px"></div>
-  <div id="tl"></div>
-</section>
-
-<section class="card">
-  <h2>My history</h2>
-  <p class="small" id="best"></p>
-  <div id="hist"></div>
-</section>
-
-<section class="card" id="backup">
-  <h2>Backup and sync</h2>
-  <p class="small">Tap Make code, keep the code somewhere safe (notes or chat to yourself), and paste it on another phone with Load code to restore your progress.</p>
-  <label class="small" for="bkName" style="display:none">Username</label>
-  <input id="bkName" style="display:none">
-  <div class="btns" style="display:none"><button id="bkNow">Back up now</button><button id="bkRestore">Restore backup</button></div>
-  <p class="small" id="bkMsg" style="margin-top:10px" role="status"></p>
-  <details open style="margin-top:8px"><summary class="small" style="cursor:pointer">Backup code</summary>
-    <textarea id="bkCode" rows="3" aria-label="Backup code" placeholder="Your backup code appears here, or paste one to restore"></textarea>
-    <div class="btns"><button id="bkCopy">Make code</button><button id="bkLoad">Load code</button></div>
-  </details>
-</section>
-
-<p class="note">General information only, not medical advice. If withdrawal feels overwhelming, talk to a doctor or a quitline. Data stays in this browser.</p>
-</main>
-<div id="wiz" class="wiz" role="dialog" aria-modal="true" aria-labelledby="wzT" hidden>
-  <div class="wzc">
-    <div class="wzd" id="wzDots"></div>
-    <h2 id="wzT"></h2>
-    <div id="wzB"></div>
-    <p class="small" id="wzE" role="alert" style="color:var(--bad);min-height:1.4em;margin:8px 0 0"></p>
-    <div class="btns"><button id="wzBack">Back</button><button class="main" id="wzNext">Next</button></div>
-    <button class="lnk" id="wzSkip" style="width:100%;margin-top:8px;border:0;color:var(--mute)">Skip for now</button>
-  </div>
-</div>
-<nav class="qbar" aria-label="Quick actions"><button id="qCrave">Craving now</button><button id="qAsk">Ask AI</button><button id="qGoals">Goals</button></nav>
+:root{--bg:#0F172A;--g:rgba(30,41,59,.6);--ln:rgba(148,163,184,.24);--tx:#F1F5F9;--mu:#94A3B8;--em:#10B981;--em2:#34D399;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(120% 40% at 50% 0,rgba(16,185,129,.16),transparent 60%),var(--bg);color:var(--tx);font:500 15px/1.45 Manrope,system-ui,sans-serif}
+#app{max-width:480px;margin:0 auto;padding:20px 18px 120px}[hidden]{display:none!important}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+h1{font:800 24px Manrope,system-ui,sans-serif;margin:0}h2{font:800 16px Manrope,system-ui,sans-serif;margin:0 0 10px}
+.sub{color:var(--mu);font-size:12.5px}.row{display:flex;align-items:center;gap:10px}.sp{flex:1}
+.g{background:var(--g);border:1px solid var(--ln);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.grid .g{margin:0;display:flex;flex-direction:column;gap:12px}
+.ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none}
+.vl{font:800 26px/1.1 Manrope,system-ui,sans-serif}.lb{font-weight:600;font-size:13px;color:var(--mu)}.cp{font-size:12px;color:var(--mu);margin-top:3px}
+.ring{position:relative;width:min(288px,100%);aspect-ratio:1;margin:0 auto 18px}.ring svg{width:100%;height:100%}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.mb{font:700 10px Manrope,system-ui,sans-serif;letter-spacing:.07em;color:#6EE7B7;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.32);border-radius:99px;padding:5px 10px;text-align:center}
+.cd{display:flex;gap:5px;align-items:flex-start}.cd div{text-align:center}.cd b{display:block;font:800 clamp(26px,9vw,34px)/1 Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums}.cd small{font-size:10px;color:var(--mu);letter-spacing:.1em;font-weight:600}.cd i{font:800 28px/1 Manrope;color:var(--em);opacity:.7;font-style:normal}
+button{font:inherit;cursor:pointer;color:var(--tx)}
+.btn{width:100%;min-height:48px;border-radius:16px;border:1px solid var(--ln);background:transparent;font-weight:700;margin-top:8px}
+.em{background:var(--em);border-color:var(--em);color:#04281E}
+.cta{width:100%;min-height:68px;border:0;border-radius:20px;background:linear-gradient(135deg,#F59E0B,#F97316);color:#1A1203;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:inset 0 0 0 1px rgba(253,186,116,.55),0 10px 30px rgba(249,115,22,.45),0 0 60px rgba(245,158,11,.28);text-align:left;margin-bottom:10px}
+.cta b{display:block;font-size:15px;letter-spacing:.02em}.cta small{display:block;font-weight:700;font-size:12px;opacity:.8}
+.ghost{width:100%;min-height:44px;background:none;border:0;color:var(--mu);font-weight:600;font-size:13.5px;margin-bottom:12px}
+details summary{list-style:none;display:flex;align-items:center;gap:12px;cursor:pointer}summary::-webkit-details-marker{display:none}details[open] .chev{transform:rotate(180deg)}
+#log{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0 0}
+.msg{padding:10px 13px;font-size:14px;max-width:88%;overflow-wrap:anywhere}.msg p{margin:0 0 6px}.msg ul{margin:0 0 6px;padding-left:18px}.msg>:last-child{margin:0}
+.msg.u{align-self:flex-end;background:var(--em);color:#04281E;border-radius:16px 16px 4px 16px;font-weight:600}.msg.a{align-self:flex-start;background:rgba(51,65,85,.7);border-radius:16px 16px 16px 4px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:12px -14px 0;padding:0 14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:7px;white-space:nowrap;font-weight:600;font-size:13px;background:rgba(51,65,85,.6);border:1px solid var(--ln);border-radius:99px;padding:0 14px;min-height:44px}
+input,select{font:inherit;width:100%;min-height:44px;border-radius:12px;border:1px solid var(--ln);background:rgba(15,23,42,.6);color:var(--tx);padding:0 12px}
+label{display:block;font-size:12.5px;color:var(--mu);margin:10px 0 4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.send{width:44px;min-height:44px;border-radius:50%;border:0;background:var(--em);color:#04281E;display:grid;place-items:center;padding:0;flex:none}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(15,23,42,.95);border-top:1px solid var(--ln);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+nav div{display:flex;max-width:480px;margin:0 auto}nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:var(--mu);font:600 10.5px Manrope,system-ui,sans-serif;min-height:48px;padding:2px 0}
+nav span{padding:4px 16px;border-radius:99px;display:grid;place-items:center}nav [aria-current]{color:var(--em2)}nav [aria-current] span{background:rgba(16,185,129,.16)}
+.step{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--ln)}.step:first-of-type{border:0}.dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--ln);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.step.on .dot{background:var(--em);border-color:var(--em);color:#04281E}.step.done .dot{border-color:var(--em);color:var(--em2)}.step.done{opacity:.65}
+.bars{display:flex;align-items:flex-end;gap:5px;height:90px}.bars i{flex:1;background:var(--em);border-radius:4px 4px 0 0;min-height:3px;opacity:.85}
+.bg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.bd{text-align:center;opacity:.4}.bd.on{opacity:1}.bd b{width:56px;height:56px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--ln);font-size:15px}.bd.on b{background:var(--em);border:2px solid var(--em);color:#04281E}.bd span{font-size:12px;display:block}
+.ov{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:#F1F5F9;color:#0F172A;padding:10px 16px;border-radius:14px;font-weight:700;font-size:14px;max-width:90vw;text-align:center}
+textarea{width:100%;font:12px monospace;border-radius:12px;border:1px solid var(--ln);background:rgba(15,23,42,.6);color:var(--tx);padding:10px;margin-top:8px}
+.n{font-size:12px;color:var(--mu)}
+</style></head><body>
+<div id="app"><main id="v-home"></main><main id="v-plan" hidden></main><main id="v-hist" hidden></main><main id="v-ach" hidden></main><main id="v-me" hidden></main></div>
+<nav aria-label="Main"><div id="nav"></div></nav>
+<div id="crave" class="ov" role="dialog" aria-modal="true" aria-label="Craving timer" hidden></div>
 <div id="toast" class="toast" role="status" hidden></div>
-
 <script>
-const H=3600e3;
-// [start hour, label, craving 0-5, feelings]
-const STAGES=[
-[0,"Just had it",0,["Calmer, a little more alert","Heart rate and blood pressure go up slightly","Cravings are quiet"]],
-[.5,"Wearing off",1,["The buzz fades, focus dips slightly","First small urge to have more","Nicotine halves in your blood roughly every 2 hours"]],
-[2,"Early craving",2,["Restless, mild irritability","Thinking about nicotine more often","Urges pass in about 3 to 5 minutes if you wait"]],
-[6,"Cravings build",3,["Stronger urges, short temper","Hard to concentrate","Hungrier than usual"]],
-[12,"Half a day in",4,["Anxious or on edge","Possible headache","Trouble relaxing, urges feel urgent"]],
-[24,"Day 1 to 2",4,["Strong cravings, mood swings","Poor or broken sleep","Headache, tiredness, bigger appetite"]],
-[48,"Day 2 to 3, often the peak",5,["Most intense withdrawal for many people","Anger, anxiety, brain fog, sweating or fatigue","Nicotine is mostly out of your blood, so it only gets easier from here"]],
-[72,"Day 3 to 7",4,["Cravings come in shorter waves","Irritability and sleep problems easing","Taste and smell start to improve"]],
-[168,"Week 1 to 2",3,["Physical symptoms fade","Urges are mostly tied to habits: coffee, stress, after meals","Cough may increase as your airways clear (if you smoked or vaped)"]],
-[336,"Week 2 to 4",2,["Mood and concentration improve","Appetite may stay a bit higher","Occasional sudden urges from triggers"]],
-[720,"Month 1 to 3",1,["Brain receptors readjust to less nicotine","Cravings are rare and situational","Energy and breathing feel better"]],
-[2160,"3 months and beyond",1,["Brain chemistry mostly rebalanced","Triggers can still surprise you, but they pass","A single use can restart the cycle, so stay alert"]]
-];
+const $=id=>document.getElementById(id),DAY=864e5,H=36e5,K="qt2";
+let S=null;try{S=JSON.parse(localStorage.getItem(K)||"null")}catch(e){}
+S=S||{};S.last=S.last||Date.now();S.hist=S.hist||[];S.use=S.use||{};S.urges=S.urges||0;
+const sv=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const P2=n=>String(n).padStart(2,"0"),kf=t=>{const d=new Date(t);return d.getFullYear()+"-"+P2(d.getMonth()+1)+"-"+P2(d.getDate())},dk=()=>kf(Date.now());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fd=t=>new Date(t).toLocaleDateString([],{month:"short",day:"numeric"});
+const dur=ms=>{const h=Math.floor(ms/H),d=Math.floor(h/24);return d?d+"d "+h%24+"h":h+"h "+Math.floor(ms%H/6e4)+"m"};
+const IC={dollar:'<path d="M12 2v20"/><path d="M17 6.5C16 5 14.5 4.5 12 4.5c-2.8 0-4.5 1.3-4.5 3.2 0 4.6 9 2.2 9 7 0 2-1.8 3.3-4.5 3.3-2.5 0-4.2-.7-5.3-2.3"/>',flame:'<path d="M12 22c4 0 7-2.8 7-7 0-3-1.6-5-3.2-6.8C14.7 6.9 14 5 14 2c-3 1.5-5.5 4.2-5.8 7.6-.7-.8-1.1-1.8-1.7-2.6C5.5 9 5 11 5 15c0 4.2 3 7 7 7z"/>',shield:'<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5L15.5 10"/>',layers:'<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/>',home:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',plan:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/>',hist:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',bolt:'<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',chev:'<path d="M6 9l6 6 6-6"/>',send:'<path d="M12 19V5M5 12l7-7 7 7"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',coffee:'<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H16M8 3v2M12 3v2"/>',pill:'<rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-35 12 12)"/>',spark:'<path d="M12 3l1.8 4.7L18.5 9.5 13.8 11.3 12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/>'};
+const ic=(n,s=20,c="currentColor")=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const MS=[[1/24,"1 HOUR","1h"],[.25,"6 HOURS","6h"],[.5,"12 HOURS","12h"],[1,"1 DAY","1d"],[2,"2 DAYS","2d"],[3,"3 DAYS","3d"],[7,"7 DAYS","1w"],[14,"14 DAYS","2w"],[30,"30 DAYS","1m"],[90,"90 DAYS","3m"],[180,"180 DAYS","6m"],[365,"1 YEAR","1y"]];
+const UN={cig:"cigarettes per day",vape:"pods per day",pouch:"pouches per day",patch:"mg"};
+function steps(a,p){const r=x=>x>=10?Math.round(x):Math.round(x*2)/2,o=[a];let c=a;while(c>0){let n=r(c*(1-p));if(n>=c)n=c-(c>=2?1:.5);if(n<=Math.max(.5,a*.1))n=0;o.push(n);c=n}return o}
+function plan(){const t=S.tp;if(!t)return null;const o=steps(t.a,t.p/100),i=Math.min(o.length-1,Math.max(0,Math.floor((Date.now()-t.s)/(t.d*DAY))));return{t,o,i,v:o[i],n:o.length-1}}
+const cur=()=>(S.sp&&S.sp.c)||"$";
+function saved(){const a=S.sp&&S.sp.a;if(!(a>0))return 0;const P=plan();if(P){let s=0;const d=Math.floor((Date.now()-P.t.s)/DAY);for(let k=0;k<d;k++)s+=a*(P.t.a-P.o[Math.min(P.n,Math.floor(k/P.t.d))])/P.t.a;return s}return a*(Date.now()-S.last)/DAY}
+const best=()=>Math.max(Date.now()-S.last,...S.hist.map(x=>x.end-x.start));
+let tt=0;function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{e.hidden=true},3500)}
+const card=(i,c,t,v,s)=>`<div class="g"><div class="row"><div class="ic" style="background:${c}2a;color:${c}">${ic(i)}</div><span class="lb">${t}</span></div><div><div class="vl">${v}</div><div class="cp">${s}</div></div></div>`;
 
-const load=()=>{try{return JSON.parse(localStorage.getItem("nic")||"null")}catch(e){return null}};
-const saveLocal=()=>{try{localStorage.setItem("nic",JSON.stringify(S))}catch(e){}};
-const save=()=>{saveLocal();schedBackup()};
-let S=load()||{last:Date.now(),hist:[]};
-S.goals=S.goals||[];S.done=S.done||{};S.days=S.days||{};S.urges=S.urges||0;S.use=S.use||{};S.ach=S.ach||{};
-const $=id=>document.getElementById(id);
-const pad=n=>String(n).padStart(2,"0");
-const dur=ms=>{const h=Math.floor(ms/H);const d=Math.floor(h/24);return d?`${d}d ${h%24}h`:`${h}h ${Math.floor(ms%H/6e4)}m`};
-const label=h=>h<1?`${Math.round(h*60)} min`:h<48?`${h} hours`:`${Math.round(h/24)} days`;
-const idx=h=>{let i=0;STAGES.forEach((s,k)=>{if(h>=s[0])i=k});return i};
-const meter=n=>Array.from({length:5},(_,i)=>`<i class="${i<n?(n>=4?'hot':'on'):''}"></i>`).join("");
-const li=a=>a.map(x=>`<li>${x}</li>`).join("");
-
-function againText(h){
-  const a=["<b>Within minutes:</b> cravings ease, you feel calmer or more focused, heart rate and blood pressure rise.",
-  "<b>After 30 to 120 minutes:</b> the effect fades and the craving comes back, so the cycle starts again.",
-  "<b>Your clock resets to 0</b> and the withdrawal timeline begins from the start."];
-  if(h>=24)a.push("<b>After a break, it can hit harder:</b> your tolerance has dropped, so you may feel dizzy, lightheaded, nauseous, jittery or get a racing heart.");
-  if(h>=72)a.push("<b>Be aware:</b> after several days the worst withdrawal was already behind you. Using again means going through the early part again.");
-  a.push("A slip is not failure. Note what triggered it and restart when you are ready.");
-  return a;
+// ---- Home ----
+$("v-home").innerHTML=`<div class="hd"><div class="row"><div class="ic" style="background:rgba(16,185,129,.16);color:#34D399">${ic("shield")}</div><div><b style="font:800 17px Manrope">Quit Tracker</b><div class="sub" style="color:#34D399;font-weight:700;letter-spacing:.08em">VERSION 2</div></div></div></div>
+<button id="setup" class="btn em" data-a="go" data-t="plan" style="margin:0 0 14px">Set up your plan</button>
+<div class="ring"><svg viewBox="0 0 288 288" role="img" aria-label="Milestone progress"><circle cx="144" cy="144" r="128" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="14"/><circle id="rp" cx="144" cy="144" r="128" fill="none" stroke="#10B981" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 804" transform="rotate(-90 144 144)" style="filter:drop-shadow(0 0 10px rgba(16,185,129,.65))"/></svg>
+<div class="rc"><div class="mb" id="mb"></div><div class="cd" id="cd"></div><div class="sub" id="since"></div></div></div>
+<div class="grid" id="cards"></div>
+<button class="cta" data-a="crave">${ic("bolt",24)}<span><b>I HAVE A CRAVING NOW!</b><small>(5-MIN TIMER)</small></span></button>
+<button class="ghost" id="slip" data-a="slip">I used nicotine</button>
+<details class="g" id="coach" open><summary><div class="ic" style="background:linear-gradient(135deg,#10B981,#0EA5E9);color:#06241B">${ic("spark")}</div><div class="sp"><b>AI Support Coach</b><div class="cp" style="margin:0">Knows your timer and plan</div></div><span class="chev">${ic("chev",20,"#94A3B8")}</span></summary>
+<div id="log"><div class="msg a">Hi, I'm here for cravings, withdrawal or any question. What's on your mind?</div></div>
+<div class="chips"><button class="chip" data-a="chip" data-l="Help me now" data-q="I need help right now. I'm having a strong craving. What can I do in the next few minutes?">${ic("bolt",16,"#FBBF24")}Help me now</button><button class="chip" data-a="chip" data-l="Triggers?" data-q="What are common triggers like coffee, and how do I handle them?">${ic("coffee",16,"#FDBA74")}Triggers?</button><button class="chip" data-a="chip" data-l="Replacement Guide" data-q="Explain nicotine replacement options (patch, gum, lozenge) and how to use them safely.">${ic("pill",16,"#38BDF8")}Replacement Guide</button></div>
+<div class="row" style="margin-top:12px"><input id="qi" maxlength="400" placeholder="Ask your coach anything" aria-label="Ask your coach anything" autocomplete="off"><button class="send" data-a="send" aria-label="Send message">${ic("send",20)}</button></div>
+<button class="ghost" id="aset" data-a="go" data-t="me" style="margin:8px 0 0;min-height:40px"></button></details>`;
+function tick(){
+  const ms=Math.max(0,Date.now()-S.last),t=Math.floor(ms/1e3),days=ms/DAY,m=MS.find(x=>x[0]>days)||MS[MS.length-1],pct=Math.min(100,Math.floor(days/m[0]*100));
+  $("cd").innerHTML=[[Math.floor(t/86400),"DAYS"],[P2(Math.floor(t%86400/3600)),"HRS"],[P2(Math.floor(t%3600/60)),"MIN"],[P2(t%60),"SEC"]].map((x,i)=>(i?"<i>:</i>":"")+`<div><b>${P2(x[0])}</b><small>${x[1]}</small></div>`).join("");
+  $("mb").textContent=`MILESTONE: ${m[1]} (${pct}% COMPLETE)`;$("rp").setAttribute("stroke-dasharray",(804.25*pct/100)+" 805");
+  $("since").textContent="Nicotine-free since "+fd(S.last);aiLbl();
+  const b=best(),P=plan();$("setup").hidden=!!(S.tp||S.sp);
+  $("cards").innerHTML=card("dollar","#34D399","Money Saved",cur()+saved().toFixed(2),"total saved")+card("flame","#FBBF24","Longest Streak",b>=DAY?Math.floor(b/DAY)+" days":Math.floor(b/H)+" hrs","best so far")+card("shield","#38BDF8","Urges Beaten",S.urges,"urges resisted so far")+card("layers","#A78BFA","Taper Step",P?(P.t.u==="mg"?P.v+"mg":P.v):"None",P?`step ${P.i+1}/${P.n}`:"no plan yet");
 }
-
-function render(){
-  const ms=Math.max(0,Date.now()-S.last),h=ms/H;
-  const tot=Math.floor(ms/1e3);
-  $("d").textContent=Math.floor(tot/86400);$("h").textContent=Math.floor(tot%86400/3600);
-  $("m").textContent=pad(Math.floor(tot%3600/60));$("s").textContent=pad(tot%60);
-  const i=idx(h),st=STAGES[i],nx=STAGES[i+1];
-  if(nx){const p=(h-st[0])/(nx[0]-st[0]);$("bar").style.width=Math.min(100,p*100)+"%";
-    $("next").textContent=`Next phase in ${dur((nx[0]-h)*H)}: ${nx[1]}`}
-  else{$("bar").style.width="100%";$("next").textContent="You have passed every phase. Keep going."}
-  $("nowT").textContent=st[1];$("nowM").innerHTML=meter(st[2]);$("nowL").innerHTML=li(st[3]);
-  $("againL").innerHTML=li(againText(h));
-  const done=h;
-  $("tl").innerHTML=STAGES.map((s,k)=>`<div class="stage ${k<i?'':k==i?'cur':'fut'}"><h3>${s[1]} <span class="meter">${meter(s[2])}</span></h3><div class="t">${k==i?"You are here · ":""}from ${label(s[0])}</div>${planNote(s[0])}<ul>${li(s[3])}</ul></div>`).join("");
-  const best=Math.max(ms,...S.hist.map(x=>x.end-x.start));
-  $("best").textContent=`Longest streak: ${dur(best)}${S.hist.length?` · Times restarted: ${S.hist.length}`:""}`;
-  $("hist").innerHTML=S.hist.length?S.hist.slice(0,8).map(x=>`<div class="row"><span>${new Date(x.end).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})}</span><span>${dur(x.end-x.start)} free</span></div>`).join(""):'<p class="small">Nothing logged yet. Each time you have nicotine, tap the button and it shows up here.</p>';
-  if(dk()!==gKey)renderGoals();else updDay();
-  renderBadges(ms);
+// ---- Craving timer ----
+const TIPS=["Breathe in for 4, out for 6. Repeat.","Sip cold water slowly.","Stand up and walk around.","Chew gum or a crunchy snack.","Text someone: 'having a craving, talk to me'."];let cT=0,cI=0;
+function crave(){cT=Date.now()+3e5;$("crave").hidden=false;$("crave").innerHTML=`<div class="n" style="letter-spacing:.1em;font-weight:700">URGES PASS IN ABOUT 5 MINUTES</div><div class="ring" style="width:260px"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="75" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="8"/><circle id="cr" cx="80" cy="80" r="75" fill="none" stroke="#F59E0B" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 472" transform="rotate(-90 80 80)"/></svg><div class="rc"><b id="ct" style="font:800 46px Manrope;font-variant-numeric:tabular-nums">5:00</b></div></div><p id="ctip" style="font-size:18px;font-weight:600;max-width:300px;margin:0"></p><button class="btn em" id="cdone" data-a="cdone" hidden>I resisted it</button><button class="btn" data-a="cclose">Close</button>`;cI=setInterval(cTick,250);cTick()}
+function cTick(){const r=Math.max(0,cT-Date.now()),s=Math.ceil(r/1e3);$("ct").textContent=r?Math.floor(s/60)+":"+P2(s%60):"Done";$("cr").setAttribute("stroke-dasharray",((1-r/3e5)*471)+" 472");$("ctip").textContent=r?TIPS[Math.floor((3e5-r)/6e4)%5]:"You waited it out. That urge is gone.";if(!r){clearInterval(cI);$("cdone").hidden=false}}
+// ---- Views ----
+function vPlan(){
+  const P=plan(),u=S.use[dk()]||0,t=S.tp||{},p=S.prod||{};
+  let h=`<div class="hd"><div><h1>Plan</h1><div class="sub">${P?"Your taper, step by step":"Build your quit plan"}</div></div></div>`;
+  if(P){
+    const nx=P.o[P.i+1],per=P.t.k==="day"&&P.v>0;
+    h+=`<div class="g"><div class="lb">Step ${P.i+1} of ${P.n}</div><div class="vl" style="font-size:34px;margin:4px 0">${P.v>0?P.v+" "+esc(P.t.u):"Stop: 0"}</div><div class="cp">${nx===undefined?"Final step of your plan":"Next step on "+fd(P.t.s+(P.i+1)*P.t.d*DAY)+": "+nx+(nx?" "+esc(P.t.u):" (stop)")}</div>${per?`<div class="row" style="margin-top:14px"><div class="sp"><div class="lb">Used today</div><b style="font-size:20px">${u} of ${P.v}</b> <span class="n">${u>P.v?"over by "+(u-P.v):P.v-u+" left"}</span></div><button class="send" style="background:none;border:1px solid var(--ln);color:var(--tx)" data-a="dn" aria-label="One less">${ic("minus")}</button><button class="send" data-a="up" aria-label="One more">${ic("plus")}</button></div>`:""}</div>
+<div class="g"><h2>Steps</h2>${P.o.map((v,i)=>`<div class="step ${i<P.i?"done":i===P.i?"on":""}"><div class="dot">${i<P.i?ic("plus",12).replace(/<path[^>]*>/,'<path d="M5 12l5 5 9-10"/>'):i+1}</div><div class="sp"><b>${v>0?v+" "+esc(P.t.u):"Stop"}</b><div class="n">${fd(P.t.s+i*P.t.d*DAY)}${v>0?" to "+fd(P.t.s+(i+1)*P.t.d*DAY-DAY):" onward"}</div></div></div>`).join("")}</div>`;
+  }
+  const o=(v,l,c)=>`<option value="${v}" ${String(c)===String(v)?"selected":""}>${l}</option>`;
+  h+=`<details class="g" ${P?"":"open"}><summary><b class="sp">${P?"Edit plan":"Create plan"}</b><span class="chev">${ic("chev",20,"#94A3B8")}</span></summary>
+<label for="pp">What do you use?</label><select id="pp">${o("cig","Cigarettes",p.type)}${o("vape","Vape (pods)",p.type)}${o("pouch","Pouches",p.type)}${o("patch","Patch (mg)",p.type)}</select>
+<div class="two"><div><label for="pa">Amount per day (mg for patch)</label><input id="pa" type="number" min="0" step="0.5" inputmode="decimal" value="${p.rate||""}"></div><div><label for="pr">Price per piece</label><input id="pr" type="number" min="0" step="0.01" inputmode="decimal" value="${p.price||""}"></div></div>
+<label for="pg">Goal</label><select id="pg">${o("taper","Slow taper",S.tp||!P?"taper":"cold")}${o("cold","Quit now (cold turkey)",P?"taper":"x")}</select>
+<div class="two"><div><label for="pc">Cut each step</label><select id="pc">${o(10,"10%",t.p)}${o(25,"25%",t.p||25)}${o(33,"33%",t.p)}${o(50,"50%",t.p)}</select></div><div><label for="pd">Step length</label><select id="pd">${o(7,"1 week",t.d)}${o(10,"10 days",t.d)}${o(14,"2 weeks",t.d||14)}</select></div></div>
+<button class="btn em" data-a="savep">Save plan</button><p class="n">Saving starts the plan today and sets your timer to now. Your history stays.</p></details>`;
+  $("v-plan").innerHTML=h;
 }
-
-$("took").onclick=()=>{
-  if($("took").dataset.arm){S.hist.unshift({start:S.last,end:Date.now()});S.last=Date.now();save();
-    $("took").textContent="I just had nicotine";delete $("took").dataset.arm;render();scrollTo({top:0,behavior:"smooth"})}
-  else{$("took").dataset.arm=1;$("took").textContent="Tap again to reset the timer";
-    setTimeout(()=>{if($("took").dataset.arm){delete $("took").dataset.arm;$("took").textContent="I just had nicotine"}},4000)}
+function vHist(){
+  const days=[...Array(14)].map((_,i)=>S.use[kf(Date.now()-(13-i)*DAY)]||0),mx=Math.max(1,...days),tot=Object.values(S.use).reduce((a,b)=>a+b,0);
+  $("v-hist").innerHTML=`<div class="hd"><div><h1>History</h1><div class="sub">Your journey so far</div></div></div>
+<div class="grid" style="grid-template-columns:repeat(3,1fr)">${[["Restarts",S.hist.length],["Longest",dur(best())],["Uses logged",tot]].map(x=>`<div class="g" style="padding:12px;text-align:center"><div class="vl" style="font-size:19px">${x[1]}</div><div class="cp">${x[0]}</div></div>`).join("")}</div>
+<div class="g"><h2>Uses, last 14 days</h2><div class="bars" role="img" aria-label="Daily uses for the last 14 days">${days.map(d=>`<i style="height:${Math.max(4,d/mx*100)}%"></i>`).join("")}</div><div class="row n" style="justify-content:space-between;margin-top:6px"><span>${fd(Date.now()-13*DAY)}</span><span>Today</span></div></div>
+<div class="g"><h2>Timeline</h2><div class="step"><div class="dot on" style="background:var(--em)"></div><div class="sp"><b>Clock running</b><div class="n">Since ${new Date(S.last).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>${S.hist.slice(0,12).map(x=>`<div class="step"><div class="dot"></div><div class="sp"><b>${dur(x.end-x.start)} free, then used</b><div class="n">${new Date(x.end).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>`).join("")||'<p class="n">No restarts logged yet.</p>'}</div>`;
+}
+function vAch(){
+  const b=best()/DAY,ms=Date.now()-S.last,U=[1,5,10,25],ts=MS.map(m=>[b>=m[0],m[2],m[1].toLowerCase()+" free"]),us=U.map(n=>[S.urges>=n,n,n+(n>1?" urges":" urge")+" beaten"]),all=[...ts,...us],nx=MS.find(m=>m[0]>b);
+  $("v-ach").innerHTML=`<div class="hd"><div><h1>Achievements</h1><div class="sub">${all.filter(x=>x[0]).length} of ${all.length} unlocked</div></div></div>
+<div class="g"><div class="lb">Next badge</div><b style="font-size:18px">${nx?nx[1].toLowerCase()+" free, in "+dur(Math.max(0,nx[0]*DAY-ms)):"You unlocked every time badge"}</b></div>
+<div class="g"><div class="bg">${all.map(x=>`<div class="bd ${x[0]?"on":""}"><b>${x[1]}</b><span>${x[2]}</span></div>`).join("")}</div></div>`;
+}
+function vMe(){
+  $("v-me").innerHTML=`<div class="hd"><div><h1>Profile</h1><div class="sub">Settings and backup</div></div></div>
+<div class="g"><h2>My reason</h2><label for="why">Why I'm quitting</label><input id="why" maxlength="120" placeholder="Your reason" value="${esc(S.why||"")}"></div>
+<div class="g"><h2>AI Coach settings</h2>
+<label for="ap">Engine</label><select id="ap">${Object.keys(PRE).map(k=>`<option value="${k}">${PRE[k].n}</option>`).join("")}</select>
+<label for="ak">API key</label><input id="ak" type="password" autocomplete="off" placeholder="Paste your key">
+<label for="am">Model</label><input id="am" list="ml" autocomplete="off"><datalist id="ml"></datalist>
+<div id="auw"><label for="au">Base URL</label><input id="au" autocomplete="off" placeholder="https://.../v1"></div>
+<div class="two"><button class="btn" data-a="afind">Find models</button><button class="btn" data-a="atest">Test</button></div>
+<p class="n" id="amsg" role="status" style="margin:8px 0 0"></p>
+<p class="n" style="margin:6px 0 0">Keys are saved per engine, only in this browser, and never included in backup codes. Messages go to the engine you choose, so check its data terms. Model names change, so use Find models.</p></div>
+<div class="g"><h2>Spending</h2><div class="two"><div><label for="cu">Currency</label><input id="cu" maxlength="3" placeholder="$" value="${esc((S.sp&&S.sp.c)||"")}"></div><div><label for="sd">Daily spend</label><input id="sd" type="number" min="0" step="0.01" inputmode="decimal" value="${(S.sp&&S.sp.a)||""}"></div></div></div>
+<div class="g"><h2>Backup code</h2><p class="n" style="margin:0">Copy the code to move your progress to another phone. Codes from the first tracker also work here.</p><textarea id="bk" rows="3" aria-label="Backup code"></textarea><div class="two"><button class="btn" data-a="mk">Make code</button><button class="btn" data-a="ld">Load code</button></div></div>
+<div class="g"><button class="btn" id="rs" data-a="reset" style="margin:0;color:#FCA5A5">Reset all data</button></div>
+<p class="n">General information, not medical advice. For severe symptoms or thoughts of self-harm, contact a doctor or emergency services. Data stays in this browser.</p>`;
+aiFill();
+}
+const VIEWS={home:null,plan:vPlan,hist:vHist,ach:vAch,me:vMe},NAV=[["home","Dashboard","home"],["plan","Plan","plan"],["hist","History","hist"],["ach","Achievements","trophy"],["me","Profile","user"]];let tab="home";
+function go(t){tab=t;for(const k in VIEWS)$("v-"+k).hidden=k!==t;if(VIEWS[t])VIEWS[t]();$("nav").innerHTML=NAV.map(n=>`<button data-a="go" data-t="${n[0]}" ${n[0]===t?'aria-current="page"':""}><span>${ic(n[2],22)}</span>${n[1]}</button>`).join("");scrollTo(0,0)}
+// ---- Actions ----
+const A={
+ go:b=>go(b.dataset.t),crave,
+ cclose(){clearInterval(cI);$("crave").hidden=true},
+ cdone(){S.urges++;sv();A.cclose();toast("Urge beaten. That's "+S.urges+" so far.");tick()},
+ slip(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to log it and reset the timer";setTimeout(()=>{delete b.dataset.arm;b.textContent="I used nicotine"},4e3);return}delete b.dataset.arm;b.textContent="I used nicotine";const n=Date.now();S.hist.unshift({start:S.last,end:n});S.last=n;S.use[dk()]=(S.use[dk()]||0)+1;sv();tick();toast("Logged. A slip is not failure, start again right now.")},
+ up(){S.use[dk()]=(S.use[dk()]||0)+1;sv();vPlan()},dn(){S.use[dk()]=Math.max(0,(S.use[dk()]||0)-1);sv();vPlan()},
+ savep(){const a=+$("pa").value,pr=+$("pr").value||0,pd=$("pp").value;if(!(a>0))return toast("Enter your amount per day");
+  S.prod={type:pd,rate:a,price:pr};S.sp={c:(S.sp&&S.sp.c)||"$",a:Math.round((pd==="patch"?pr:a*pr)*100)/100};S.last=Date.now();
+  if($("pg").value==="taper")S.tp={a,u:UN[pd],k:pd==="patch"?"mg":"day",p:+$("pc").value,d:+$("pd").value,s:new Date().setHours(0,0,0,0)};else delete S.tp;
+  if(S.tp&&pd==="patch")S.tp.k="str";sv();toast("Plan saved. Timer restarted.");go("home")},
+ mk(){const e=$("bk");e.value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));e.select();try{navigator.clipboard.writeText(e.value)}catch(x){}toast("Code ready. Keep it somewhere safe.")},
+ ld(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to replace";setTimeout(()=>{delete b.dataset.arm;b.textContent="Load code"},4e3);return}delete b.dataset.arm;b.textContent="Load code";
+  try{const x=JSON.parse(decodeURIComponent(escape(atob($("bk").value.trim()))));if(typeof x.last!=="number")throw 0;S=Object.assign({hist:[],use:{},urges:0},x);sv();toast("Restored.");go("home")}catch(e){toast("That code doesn't look right")}},
+ reset(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to erase everything";setTimeout(()=>{delete b.dataset.arm;b.textContent="Reset all data"},4e3);return}S={last:Date.now(),hist:[],use:{},urges:0};sv();go("home");toast("All data erased")},
+ chip(b){ask(b.dataset.q,b.dataset.l)},send(){ask($("qi").value);$("qi").value=""}
 };
-$("edit").onclick=()=>{const b=$("editBox");b.hidden=!b.hidden;
-  const d=new Date(S.last-new Date().getTimezoneOffset()*6e4);$("dt").value=d.toISOString().slice(0,16);$("dt").max=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16)};
-$("save").onclick=()=>{const t=new Date($("dt").value).getTime();
-  if(t&&t<=Date.now()){S.last=t;save();$("editBox").hidden=true;render()}};
-
-// ---- Goals and achievements ----
-const dk=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const SUG=["Drink 2 liters of water","Walk for 10 minutes","Beat a craving with the urge timer","Sleep before 11 pm","Eat a proper breakfast"];
-let gKey="";
-const isFree=()=>S.last<new Date().setHours(0,0,0,0);
-const doneToday=()=>S.done[gKey]||[];
-const keyOf=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
-const pl=()=>{const t=S.tp;if(!t)return null;const o=taperSteps(t.a,t.p/100),i=Math.min(o.length-1,Math.max(0,Math.floor((Date.now()-t.s)/(t.d*864e5))));return{t,o,i,v:o[i]}};
-const used=()=>S.use[gKey]||0;
-const limitOk=()=>{const P=pl();if(P&&P.v>0)return P.t.k==="str"?doneToday().includes("__limit"):used()<=P.v;return isFree()};
-const complete=()=>S.goals.length>0&&limitOk()&&S.goals.every(g=>doneToday().includes(g));
-function autoRow(){
-  const P=pl();
-  if(P&&P.v>0){
-    const u=esc(P.t.u);
-    if(P.t.k==="str"){const ok=doneToday().includes("__limit");return `<div class="goal ${ok?'ok':''}"><label><input type="checkbox" data-l="1" ${ok?'checked':''}><span>Use today's strength or lower: ${P.v} ${u}</span></label></div>`}
-    return `<div class="goal" id="gAuto"><div style="flex:1"><span>Stay at or under ${P.v} ${u} today</span><div class="small" id="gUse"></div><div class="small">Tapping "I just had nicotine" at the top adds 1 here automatically.</div></div><button class="u" data-u="-1" aria-label="One less">&minus;</button><b class="cnt" id="gCnt">0</b><button class="u" data-u="1" aria-label="One more">+</button></div>`;
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&A[b.dataset.a])A[b.dataset.a](b)});
+document.addEventListener("input",e=>{const i=e.target.id;if(i==="why"){S.why=e.target.value.trim();sv()}else if(i==="cu"||i==="sd"){S.sp={c:$("cu").value.trim(),a:parseFloat($("sd").value)||0};sv()}});
+$("qi").onkeydown=e=>{if(e.key==="Enter")A.send()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("crave").hidden)A.cclose()});
+// ---- AI coach ----
+const md=t=>{const e=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");let o="",l=0;for(const x of t.split("\n")){const m=x.match(/^\s*(?:[-*]|\d+[.)])\s+(.*)/);if(m){if(!l){o+="<ul>";l=1}o+="<li>"+e(m[1])+"</li>"}else{if(l){o+="</ul>";l=0}if(x.trim())o+="<p>"+e(x)+"</p>"}}return o+(l?"</ul>":"")};
+const SYS="You are a friendly, knowledgeable AI coach inside a nicotine-quit tracker. Answer any question clearly and helpfully, about 120 words, using light markdown (bold, short bullet lists) and no tables. For nicotine, cravings, withdrawal or tapering questions, use the tracker context, give 2 or 3 practical steps and brief encouragement. You are not a doctor: do not diagnose or give personal medication doses; point to a pharmacist or doctor. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm or severe low mood, tell them to contact emergency services or a crisis line right away. If they slipped, be non-judgmental.";
+let ch=[],busy=0;
+const AK="qt2_ai",GEM="https://generativelanguage.googleapis.com/v1beta/models",ANT="https://api.anthropic.com/v1";
+const PRE={gemini:{n:"Google Gemini",m:"gemini-2.5-flash"},claude:{n:"Anthropic Claude",m:"claude-sonnet-5-5"},openai:{n:"OpenAI",u:"https://api.openai.com/v1",m:"gpt-4o-mini"},openrouter:{n:"OpenRouter (open models)",u:"https://openrouter.ai/api/v1",m:""},groq:{n:"Groq (open models)",u:"https://api.groq.com/openai/v1",m:"llama-3.3-70b-versatile"},ollama:{n:"Ollama (your computer)",u:"http://localhost:11434/v1",m:"llama3.2"},custom:{n:"Other OpenAI-compatible",u:"",m:""}};
+let AI={p:"gemini",c:{}};try{AI={...AI,...JSON.parse(localStorage.getItem(AK)||"{}")}}catch(e){}
+if(!PRE[AI.p])AI.p="gemini";
+const asv=()=>{try{localStorage.setItem(AK,JSON.stringify(AI))}catch(e){}};
+const cfg=()=>{const c=AI.c[AI.p]||{},d=PRE[AI.p];return{k:c.k||"",m:c.m||d.m||"",u:c.u||d.u||""}};
+function aiLbl(){const e=$("aset");if(e)e.textContent="Engine: "+PRE[AI.p].n+" · Settings"}
+function aiFill(){const c=cfg();$("ap").value=AI.p;$("ak").value=c.k;$("am").value=c.m;$("au").value=c.u;$("auw").hidden=AI.p==="gemini"||AI.p==="claude";$("amsg").textContent="";aiLbl()}
+document.addEventListener("input",e=>{const i=e.target.id;if(i==="ap"){AI.p=e.target.value;asv();aiFill()}else if(i==="ak"||i==="am"||i==="au"){AI.c[AI.p]={k:$("ak").value.trim(),m:$("am").value.trim(),u:$("au").value.trim()};asv();aiLbl()}});
+const aiErr=e=>e.c==="nokey"?"Add your API key in Profile, under AI Coach settings.":e.c==="noconf"?"Add the base URL and model in Profile, under AI Coach settings.":e.c==="empty"?"The AI sent an empty reply. Try again.":e.c==="http"?([400,401,403].includes(e.s)?"The provider rejected the key or request ("+e.s+"). Check the key and model in AI Coach settings.":e.s===404?"Model not found. Use Find models in AI Coach settings.":e.s===429?"Rate limit reached. Wait a minute and try again.":"Provider error ("+e.s+"). "+(e.m||"")):"Couldn't reach the provider. Check your connection and the settings (Ollama must be running and allow this page's origin).";
+const ah=c=>({"x-api-key":c.k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"});
+async function callAI(m){
+  const c=cfg(),p=AI.p;let r,d;
+  if(!c.k&&p!=="ollama"&&p!=="custom")throw{c:"nokey"};
+  if(p==="gemini"){
+    r=await fetch(`${GEM}/${encodeURIComponent(c.m)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":c.k},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:m.map(x=>({role:x.role==="assistant"?"model":"user",parts:[{text:x.content}]})),generationConfig:{maxOutputTokens:900,temperature:.6}})});
+    d=await r.json().catch(()=>({}));if(!r.ok)throw{c:"http",s:r.status,m:d.error&&d.error.message};
+    return((d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts)||[]).map(x=>x.text||"").join("").trim();
   }
-  return `<div class="goal" id="gAuto"><label><input type="checkbox" disabled><span>No nicotine today</span></label></div>`;
-}
-function planLine(){
-  const P=pl();
-  if(!P)return `No taper plan yet. <a href="#" id="toTaper">Build one</a> to get a daily limit here.`;
-  const n=P.o.length-1,nx=P.o[P.i+1],ds=new Date(P.t.s+(P.i+1)*P.t.d*864e5).toLocaleDateString([],{month:"short",day:"numeric"});
-  return `Taper plan, step ${Math.min(P.i+1,n)} of ${n}: ${P.v>0?P.v+" "+esc(P.t.u):"0, stop"}.`+(nx!==undefined?` Next step on ${ds}: ${nx>0?nx:"0"}.`:" You've reached the end of the plan.");
-}
-function runs(){
-  const ks=Object.keys(S.days).filter(k=>S.days[k]).sort(),t=k=>new Date(k+"T12:00:00").getTime();
-  let best=0,run=0;
-  ks.forEach((k,i)=>{run=i&&Math.round((t(k)-t(ks[i-1]))/864e5)===1?run+1:1;best=Math.max(best,run)});
-  let cur=0,d=new Date();d.setHours(12);
-  const key=x=>x.getFullYear()+"-"+pad(x.getMonth()+1)+"-"+pad(x.getDate());
-  if(!S.days[key(d)])d.setDate(d.getDate()-1);
-  while(S.days[key(d)]){cur++;d.setDate(d.getDate()-1)}
-  return{cur,best};
-}
-function renderGoals(){
-  gKey=dk();
-  $("gPlan").innerHTML=planLine();
-  $("gList").innerHTML=autoRow()+
-    S.goals.map((g,i)=>`<div class="goal ${doneToday().includes(g)?'ok':''}"><label><input type="checkbox" data-i="${i}" ${doneToday().includes(g)?'checked':''}><span>${esc(g)}</span></label><button class="x" data-x="${i}" aria-label="Remove goal">×</button></div>`).join("");
-  $("chips").innerHTML=SUG.filter(s=>!S.goals.includes(s)).map(s=>`<button data-s="${esc(s)}">+ ${esc(s)}</button>`).join("");
-  updDay();renderWeekly();renderTlPlan();
-}
-function updDay(){
-  if(gKey!==dk())return;
-  const c=complete();
-  if(!!S.days[gKey]!==c){if(c)S.days[gKey]=true;else delete S.days[gKey];save()}
-  const P=pl(),a=$("gAuto");
-  if(a){if(P&&P.v>0){$("gCnt").textContent=used();$("gUse").textContent=used()>P.v?`Over by ${used()-P.v}`:`${P.v-used()} left today`}else{a.querySelector("input").checked=isFree();a.classList.toggle("ok",isFree())}}
-  const {cur,best}=runs(),n=S.goals.length,d=S.goals.filter(g=>doneToday().includes(g)).length;
-  let msg;
-  if(P&&P.v>0){
-    if(P.t.k!=="str"&&used()>P.v)msg=`You're ${used()-P.v} over today's limit, so today won't count. Tomorrow is a fresh start.`;
-    else if(!n)msg="Add at least one goal to start counting days.";
-    else if(c)msg="Today is complete. Nice work.";
-    else msg=`${d} of ${n} goals done${P.t.k==="str"&&!doneToday().includes("__limit")?", and tick your strength goal":""}.`;
-  }else msg=!isFree()?"You had nicotine today, so today won't count. Tomorrow is a fresh start.":!n?"Add at least one goal to start counting days.":c?"Today is complete. Nice work.":`${d} of ${n} goals done, nicotine-free so far.`;
-  $("gStat").textContent=`${msg} Goal day streak: ${cur}. Best: ${best}.`;
-}
-function addGoal(t){t=t.trim();if(!t||S.goals.includes(t)||S.goals.length>=10)return;S.goals.push(t);save();renderGoals()}
-$("gList").onchange=e=>{if(e.target.dataset.l!=null){const d=doneToday();S.done[gKey]=e.target.checked?[...new Set([...d,"__limit"])]:d.filter(x=>x!=="__limit");save();renderGoals();return}const i=e.target.dataset.i;if(i==null)return;const g=S.goals[i];let d=doneToday();
-  S.done[gKey]=e.target.checked?[...new Set([...d,g])]:d.filter(x=>x!==g);save();renderGoals()};
-$("gList").onclick=e=>{const u=e.target.dataset.u;if(u!=null){S.use[gKey]=Math.max(0,used()+ +u);save();updDay();return}const x=e.target.dataset.x;if(x==null)return;S.goals.splice(+x,1);save();renderGoals()};
-$("chips").onclick=e=>{if(e.target.dataset.s)addGoal(e.target.dataset.s)};
-$("gPlan").onclick=e=>{if(e.target.id==="toTaper"){e.preventDefault();$("taper").scrollIntoView({behavior:"smooth"})}};
-$("gBtn").onclick=()=>{addGoal($("gIn").value);$("gIn").value=""};
-$("gIn").onkeydown=e=>{if(e.key==="Enter")$("gBtn").click()};
-
-const TB=[[1,"1h","1 hour"],[6,"6h","6 hours"],[12,"12h","12 hours"],[24,"1d","1 day"],[48,"2d","2 days"],[72,"3d","3 days"],[168,"1w","1 week"],[336,"2w","2 weeks"],[720,"1m","1 month"],[2160,"3m","3 months"]];
-function renderBadges(ms){
-  const bestMs=Math.max(ms,...S.hist.map(x=>x.end-x.start)),{best}=runs();
-  const time=TB.map(([h,s,c])=>[bestMs>=h*H,s,c+" free"]);
-  const hab=[[S.urges>=1,"1","Beat your first urge"],[S.urges>=5,"5","Beat 5 urges"],[S.urges>=20,"20","Beat 20 urges"],[best>=1,"✓","First full goal day"],[best>=3,"3","3 goal days in a row"],[best>=7,"7","7 goal days in a row"],[best>=30,"30","30 goal days in a row"]];
-  const cell=([on,s,c])=>`<div class="bd ${on?'on':''}"><b>${s}</b><span>${c}</span></div>`;
-  const P=pl(),adh=P?Object.keys(S.days).filter(k=>k>=keyOf(P.t.s)).length:0;
-  const chk=(k,c)=>{if(c&&!S.ach[k]){S.ach[k]=1;save()}return !!S.ach[k]};
-  const tap=[[chk("pm",!!P),"Plan","Made a taper plan"],[chk("a7",adh>=7),"7d","7 goal days on your plan"],[chk("s1",!!P&&P.i>=1&&adh>=Math.ceil(P.t.d/2)),"↓1","First step down"],[chk("hf",!!P&&P.v<=P.t.a/2&&adh>=7),"½","Halfway down"],[chk("pf",!!P&&P.v===0&&adh>=7),"0","Plan finished"]];
-  $("bTime").innerHTML=time.map(cell).join("");$("bHab").innerHTML=hab.map(cell).join("");$("bTap").innerHTML=tap.map(cell).join("");
-  const all=[...time,...hab,...tap],n=all.filter(x=>x[0]).length,nx=TB.find(t=>t[0]*H>bestMs);
-  badgeToast(all);$("bSum").textContent=`${n} of ${all.length} unlocked.`+(nx?` Next: ${nx[2]} free in ${dur(nx[0]*H-ms)}.`:" You unlocked every time badge.");
-}
-
-let uEnd=0,uInt=null;
-const MSGS=["Breathe in slowly, out even slower","Sip some cold water","The urge is peaking, it will pass","Stand up and stretch or walk","Chew gum or a crunchy snack","Almost there, you are riding it out"];
-function uTick(){
-  const r=Math.max(0,uEnd-Date.now()),s=Math.ceil(r/1e3);
-  $("uT").textContent=`${Math.floor(s/60)}:${pad(s%60)}`;
-  if(r<=0){clearInterval(uInt);uInt=null;S.urges++;save();$("uGo").textContent="Start 5 minute urge timer";$("uMsg").textContent="Done. Notice how the urge dropped. That was you winning.";return}
-  $("uMsg").textContent=MSGS[Math.floor((300-s)/50)%MSGS.length];
-}
-$("uGo").onclick=()=>{
-  if(uInt){clearInterval(uInt);uInt=null;$("uT").textContent="5:00";$("uMsg").textContent="Ready when you are";$("uGo").textContent="Start 5 minute urge timer";return}
-  uEnd=Date.now()+300e3;uTick();uInt=setInterval(uTick,500);$("uGo").textContent="Stop";
-};
-
-// ---- Plan details inside the hour-by-hour timeline ----
-const fmtD=x=>new Date(x).toLocaleDateString([],{month:"short",day:"numeric"});
-const gapTxt=g=>g<1?Math.round(g*60)+" min":(+g.toFixed(1))+" h";
-function planNote(h){
-  const P=pl();if(!P)return"";
-  const parts=[];
-  if(P.t.k!=="str"&&P.v>0&&h<=16/P.v)parts.push("Between your uses at today's limit");
-  if(h>=24)parts.push("Expected around "+fmtD(P.t.s+(P.o.length-1)*P.t.d*864e5+h*H)+" if you stop on schedule");
-  return parts.length?`<div class="pn">${parts.join(" · ")}</div>`:"";
-}
-function renderTlPlan(){
-  const el=$("tlPlan"),P=pl();
-  if(!P){el.innerHTML='<p class="small">No taper plan yet. <a href="#" id="toTaper3">Build one</a> to see how these phases apply to each of your steps.</p>';return}
-  const t=P.t,D=864e5,per=t.k!=="str",u=esc(t.u);
-  const rows=P.o.map((v,i)=>{
-    const g=v===0?"No use: the full timeline below applies":(!per?"Depends on how often you use":`about ${gapTxt(16/v)}, phase: ${STAGES[idx(16/v)][1]}`);
-    return `<tr class="${i===P.i?'cur':''}"><td>${i+1}</td><td>${fmtD(t.s+i*t.d*D)}</td><td>${v>0?v+" "+u:"0"}</td><td>${g}</td></tr>`}).join("");
-  let intro;
-  if(P.v===0)intro="You are on the stop step, so the full timeline below applies from your last use.";
-  else if(per)intro=`At step ${P.i+1} (${P.v} ${u}) there are about ${gapTxt(16/P.v)} between uses, so you mostly stay in "${STAGES[idx(16/P.v)][1]}". Each cut stretches the gap and lets you reach later phases between uses.`;
-  else intro="On a strength plan, each cut makes every use give less nicotine, so you may feel the early craving phases sooner and stronger for a few days after each cut.";
-  el.innerHTML=`<h3 style="font-size:15px;margin:0 0 6px;color:var(--acc)">Your plan on this timeline</h3><p class="small" style="margin-bottom:8px">${intro}</p><div style="overflow-x:auto"><table><tr><th>Step</th><th>From</th><th>Limit</th><th>Gap between uses (16 waking hours)</th></tr>${rows}</table></div><p class="small" style="margin-top:8px">Phases marked below show where each of your steps falls, and the date each later phase is expected if you stop on schedule.</p>`;
-}
-$("tlPlan").onclick=e=>{if(e.target.id==="toTaper3"){e.preventDefault();$("taper").scrollIntoView({behavior:"smooth"})}};
-
-// ---- Plan result on the "Right now" card ----
-let npCache="";
-function renderNowPlan(){
-  const el=$("nowPlan"),P=pl();let h;
-  if(!P)h=`<p class="small">No taper plan yet. <a href="#" id="toTaper4">Build one</a> to see your daily limit and next step here.</p>`;
-  else{
-    const t=P.t,n=P.o.length-1,u=esc(t.u),nx=P.o[P.i+1],D=864e5;
-    const chips=P.o.map((v,i)=>`<span class="${i<P.i?'past':i===P.i?'cur':''}">${v}</span>`).join("");
-    let today;
-    if(P.v===0)today=isFree()?"No nicotine today: on track":"You had nicotine today. Start fresh tomorrow";
-    else if(t.k==="str")today=doneToday().includes("__limit")?"Strength goal ticked for today":"Use this strength or lower, then tick it in Today's goals";
-    else today=used()>P.v?`Used ${used()} of ${P.v} today: over by ${used()-P.v}`:`Used ${used()} of ${P.v} today: ${P.v-used()} left`;
-    let next="You are on the last step of your plan.";
-    if(nx!==undefined){const pct=Math.round((P.v-nx)/P.v*100),when=fmtD(t.s+(P.i+1)*t.d*D);
-      next=nx===0?`Next, on ${when}: stop. Expect the hardest days 1 to 3, then it eases.`:`Next, on ${when}: ${nx} ${u} (${pct}% cut). ${INT[pct<15?0:pct<30?1:pct<45?2:3][0]}.`}
-    h=`<h3 style="font-size:15px;margin:0;color:var(--acc)">Your taper plan</h3><p style="margin:6px 0 0;font-weight:600">Step ${Math.min(P.i+1,n)} of ${n}: ${P.v>0?P.v+" "+u:"0, stop"}</p><div class="stp" aria-label="Plan steps">${chips}</div><p class="small">${today}</p><p class="small" style="margin-top:4px">${next}</p>`;
+  if(p==="claude"){
+    r=await fetch(ANT+"/messages",{method:"POST",headers:{"Content-Type":"application/json",...ah(c)},body:JSON.stringify({model:c.m,max_tokens:700,system:SYS,messages:m})});
+    d=await r.json().catch(()=>({}));if(!r.ok)throw{c:"http",s:r.status,m:d.error&&d.error.message};
+    return(d.content||[]).map(x=>x.text||"").join("").trim();
   }
-  if(h!==npCache){npCache=h;el.innerHTML=h}
+  if(!c.u||!c.m)throw{c:"noconf"};
+  r=await fetch(c.u.replace(/\/$/,"")+"/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",...(c.k?{Authorization:"Bearer "+c.k}:{})},body:JSON.stringify({model:c.m,messages:[{role:"system",content:SYS},...m],max_tokens:700,temperature:.6})});
+  d=await r.json().catch(()=>({}));if(!r.ok)throw{c:"http",s:r.status,m:d.error&&(d.error.message||d.error)};
+  return((d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||"").trim();
 }
-$("nowPlan").onclick=e=>{if(e.target.id==="toTaper4"){e.preventDefault();$("taper").scrollIntoView({behavior:"smooth"})}};
-
-// ---- Weekly expectations (built from the saved plan) ----
-const INT=[["A very gentle change, you may barely notice it","Slight restlessness at your usual trigger times"],
-["Cravings a bit stronger for 2 to 4 days","Mild irritability and lighter sleep are possible","Trigger times (after meals, coffee, stress) feel hardest"],
-["Noticeable cravings and irritability for 3 to 5 days","Harder to concentrate, hungrier than usual","Headache or restlessness possible"],
-["Strong withdrawal, like a mini quit, for 3 to 5 days","Headache, anxiety, low mood and poor sleep are possible","If it feels too much, repeat the previous step for another week"]];
-function renderWeekly(){
-  const el=$("wList"),P=pl();
-  if(!P){$("wSub").innerHTML='No plan yet. <a href="#" id="toTaper2">Build your taper plan</a> and each week will show your limit and what to expect.';el.innerHTML="";return}
-  const t=P.t,o=P.o,n=o.length-1,D=864e5,W=Math.min(26,Math.ceil(n*t.d/7)+2),u=esc(t.u);
-  const f=x=>new Date(x).toLocaleDateString([],{month:"short",day:"numeric"});
-  const open=new Set([...el.querySelectorAll("details[open]")].map(d=>d.dataset.w));
-  const curW=Math.min(W,Math.floor((Date.now()-t.s)/(7*D))+1);
-  if(!wInit){open.add(String(curW));wInit=true}
-  $("wSub").textContent=`Built from your plan: ${t.p}% cut every ${t.d} days (${t.k==="str"?"strength":"amount per day"}, in ${t.u}). It changes when you rebuild the plan.`;
-  let html="";
-  for(let w=1;w<=W;w++){
-    const off=(w-1)*7,s0=t.s+off*D,e0=s0+6*D,i0=Math.min(n,Math.floor(off/t.d));
-    let k=0;for(let q=1;q<=n;q++){if(q*t.d>=off&&q*t.d<=off+6){k=q;break}}
-    let lim,tag,bul,tip,aim="Aim: 6 of 7 days within your limit";
-    if(!k&&o[i0]===0){
-      const st=STAGES[idx(((off-n*t.d)+3)*24)];
-      lim="0, nicotine-free";tag="Nicotine-free";bul=["Phase: "+st[1],...st[3]];
-      tip="Keep using your urge timer and goals. Every day counts.";aim="Aim: 7 nicotine-free days";
-    }else if(k&&o[k]===0){
-      lim=`${o[k-1]} → 0 on ${f(t.s+k*t.d*D)}`;tag="Stop week";
-      bul=["Days 1 to 3 after your last use are usually the hardest: strong cravings, irritability, headache, poor sleep, brain fog","Days 4 to 7 get easier as cravings come in shorter waves","Nicotine is mostly out of your body by about day 3"];
-      tip="Plan your first nicotine-free days: keep gum, water and distractions ready, and tell a friend.";aim="Aim: stay within your limit, then stay nicotine-free";
-    }else if(k){
-      const pct=Math.round((o[k-1]-o[k])/o[k-1]*100);
-      lim=`${o[k-1]} → ${o[k]} ${u} from ${f(t.s+k*t.d*D)}`;tag=pct+"% cut";bul=INT[pct<15?0:pct<30?1:pct<45?2:3];
-      tip="Keep water, gum or a short walk ready for the use you are dropping.";
-    }else if(w===1){
-      lim=`${o[0]} ${u}`;tag="Starting week";
-      bul=["No cut yet: this step matches what you use now","Learn your pattern: notice when and why you use","Counting each use makes the next cuts easier"];
-      tip="Tap + on your daily limit each time you use, so you can see your triggers.";
-    }else{
-      lim=`${o[i0]} ${u}`;tag="Settling in";
-      bul=["The new level is becoming normal and cravings should ease","Energy, sleep and mood start to steady","A good week to strengthen your habits and trigger plan"];
-      tip="Stay at the limit. If it feels too hard, repeat this step for another week.";
-    }
-    const cnt=Object.keys(S.days).filter(x=>x>=keyOf(s0)&&x<=keyOf(e0)).length;
-    const status=w<curW?`<span class="small">${cnt}/7 goal days</span>`:w===curW?'<span class="small">this week</span>':"";
-    html+=`<details data-w="${w}" class="${w===curW?'cur':''}" ${open.has(String(w))?'open':''}><summary><span>Week ${w} · ${f(s0)} to ${f(e0)}</span><span class="wl">${lim}</span><span class="tg">${tag}</span>${status}</summary><ul>${li(bul)}</ul><p class="small"><b>Tip:</b> ${tip}</p><p class="small">${aim}</p></details>`;
-  }
-  el.innerHTML=html;
-}
-let wInit=false;
-$("wSub").onclick=e=>{if(e.target.id==="toTaper2"){e.preventDefault();$("taper").scrollIntoView({behavior:"smooth"})}};
-
-// ---- Backup and sync (private per-account storage via the db capability) ----
-let bkDb=null,bkId=null,bkT=0,bkCache=null,bkForce=false;
-const NOSIGN="Backup needs you to open this page from your claude.ai link while signed in.";
-const bkName=()=>($("bkName").value||"").trim().toLowerCase().replace(/[^a-z0-9_.-]/g,"");
-const bkStatus=t=>{$("bkMsg").textContent=t};
-const slim=()=>{const c={...S};delete c.bk;c.hist=(c.hist||[]).slice(0,300);return c};
-const bkRef=n=>bkDb.collection("data/users/"+bkId).doc("bk_"+n);
-const fmtT=x=>new Date(x).toLocaleString([],{dateStyle:"medium",timeStyle:"short"});
-async function bkInit(){
-  if(bkDb)return true;
+A.atest=async()=>{$("amsg").textContent="Testing...";try{const t=await callAI([{role:"user",content:"Reply with the single word: connected"}]);$("amsg").textContent=t?"Works: "+t.slice(0,60):"Connected, but the reply was empty."}catch(e){$("amsg").textContent=aiErr(e)}};
+A.afind=async()=>{
+  const c=cfg(),p=AI.p;
   try{
-    if(typeof claude==="undefined")return false;
-    const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
-    if(!d||!u)return false;
-    bkId=await u.id();if(!bkId)return false;
-    bkDb=d;return true;
-  }catch(e){return false}
-}
-function schedBackup(){
-  if(!(S.bk&&S.bk.auto))return;
-  clearTimeout(bkT);bkT=setTimeout(()=>backupNow(true),8000);
-}
-async function backupNow(auto){
-  const n=bkName();
-  if(n.length<3){bkStatus("Enter a username with at least 3 characters (a to z, 0 to 9, . _ -).");return}
-  if(!await bkInit()){bkStatus(NOSIGN);return}
-  try{
-    const ref=bkRef(n),snap=await ref.get(),mine=S.bk&&S.bk.name===n?S.bk.t:0;
-    if(snap.exists&&snap.data().savedAt>mine&&!bkForce){
-      bkStatus("A newer backup from another device exists for this username. Tap Back up now again to overwrite it, or tap Restore to load it instead.");
-      if(!auto){bkForce=true;setTimeout(()=>{bkForce=false},8000)}
-      return;
-    }
-    bkForce=false;
-    const now=Date.now();
-    await ref.set({v:1,name:n,savedAt:now,state:JSON.stringify(slim())});
-    S.bk={name:n,auto:true,t:now};saveLocal();
-    bkStatus("Backed up at "+new Date(now).toLocaleTimeString([],{timeStyle:"short"})+". Auto-backup is on for this phone.");
-  }catch(e){
-    bkStatus(e&&e.code==="invalid_argument"?"This view can't save backups (read-only access).":"Backup failed. Check your connection and try again.");
-  }
-}
-function applyState(st,bk){
-  Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,st,{bk});
-  S.hist=S.hist||[];S.last=S.last||Date.now();S.goals=S.goals||[];S.done=S.done||{};S.days=S.days||{};S.urges=S.urges||0;S.use=S.use||{};S.ach=S.ach||{};
-  saveLocal();
-  if(S.tp){$("tA").value=S.tp.a;$("tU").value=S.tp.u;$("tP").value=S.tp.p;$("tD").value=S.tp.d;$("tK").value=S.tp.k||"day"}else $("tA").value="";
-  $("spCur").value=(S.sp&&S.sp.c)||"";$("spAmt").value=(S.sp&&S.sp.a)||"";$("whyIn").value=S.why||"";
-  gKey="";renderTaper();showWhy();render();
-}
-function arm(btn,label,ms){btn.dataset.arm=1;btn.dataset.l=btn.dataset.l||btn.textContent;btn.textContent=label;setTimeout(()=>{if(btn.dataset.arm){delete btn.dataset.arm;btn.textContent=btn.dataset.l}},ms)}
-function disarm(btn){delete btn.dataset.arm;btn.textContent=btn.dataset.l||btn.textContent}
-async function restoreNow(){
-  const b=$("bkRestore");
-  if(b.dataset.arm&&bkCache){
-    disarm(b);applyState(JSON.parse(bkCache.state),{name:bkCache.name,auto:true,t:bkCache.savedAt});
-    bkStatus("Restored. Your progress is now on this phone and auto-backup is on.");return;
-  }
-  const n=bkName();
-  if(n.length<3){bkStatus("Enter the username you used for your backup.");return}
-  if(!await bkInit()){bkStatus(NOSIGN);return}
-  try{
-    const snap=await bkRef(n).get();
-    if(!snap.exists){bkStatus(`No backup found for "${n}". Check the spelling, and make sure you are signed in to the same claude.ai account you backed up with.`);return}
-    bkCache=snap.data();const st=JSON.parse(bkCache.state);
-    bkStatus(`Found a backup from ${fmtT(bkCache.savedAt)} with ${Object.keys(st.days||{}).length} goal days and ${(st.hist||[]).length} restarts. Tap again to replace this phone's data with it.`);
-    arm(b,"Tap again to replace",8000);
-  }catch(e){bkStatus("Couldn't read the backup. Please try again.")}
-}
-$("bkNow").onclick=()=>backupNow(false);
-$("bkRestore").onclick=restoreNow;
-$("bkCopy").onclick=()=>{
-  const c=btoa(unescape(encodeURIComponent(JSON.stringify(slim()))));
-  $("bkCode").value=c;$("bkCode").select();
-  try{navigator.clipboard.writeText(c)}catch(e){}
-  bkStatus("Backup code ready. Copy it and keep it somewhere safe. Paste it here on another phone and tap Load code.");
+    let names=[],r,d;
+    if(p==="gemini"){if(!c.k)throw{c:"nokey"};r=await fetch(GEM+"?pageSize=100",{headers:{"x-goog-api-key":c.k}});d=await r.json();if(!r.ok)throw{c:"http",s:r.status,m:d.error&&d.error.message};names=(d.models||[]).filter(x=>(x.supportedGenerationMethods||[]).includes("generateContent")).map(x=>x.name.replace("models/",""))}
+    else if(p==="claude"){if(!c.k)throw{c:"nokey"};r=await fetch(ANT+"/models?limit=100",{headers:ah(c)});d=await r.json();if(!r.ok)throw{c:"http",s:r.status,m:d.error&&d.error.message};names=(d.data||[]).map(x=>x.id)}
+    else{if(!c.u)throw{c:"noconf"};r=await fetch(c.u.replace(/\/$/,"")+"/models",{headers:c.k?{Authorization:"Bearer "+c.k}:{}});d=await r.json();if(!r.ok)throw{c:"http",s:r.status};names=(d.data||[]).map(x=>x.id)}
+    $("ml").innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
+    $("amsg").textContent=names.length?`Found ${names.length} models. Tap the Model box to pick one.`:"No models found.";
+  }catch(e){$("amsg").textContent=aiErr(e)}
 };
-$("bkLoad").onclick=function(){
-  if(this.dataset.arm){
-    disarm(this);
-    try{const st=JSON.parse(decodeURIComponent(escape(atob($("bkCode").value.trim()))));if(!st||typeof st.last!=="number")throw 0;applyState(st,S.bk);bkStatus("Restored from the code.")}
-    catch(e){bkStatus("That code doesn't look right.")}
-    return;
-  }
-  if(!$("bkCode").value.trim()){bkStatus("Paste your backup code first.");return}
-  arm(this,"Tap again to replace",6000);
-};
-$("bkName").value=(S.bk&&S.bk.name)||"";
-
-// ---- Onboarding wizard ----
-const WZ_UNIT={cig:"cigarettes per day",vape:"pods or refills per day",pouch:"pouches per day"};
-const WZ_NAME={cig:"Cigarettes",vape:"Vape",pouch:"Nicotine pouches"};
-const WZ_ONE={cig:"cigarette",vape:"pod or refill",pouch:"pouch"};
-const localNow=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
-let W={},wzStep=0;
-function wzInit(){
-  const p=S.prod||{},sp=S.sp||{},t=S.tp||{};
-  W={prod:p.type||"",strength:p.strength||"",rate:p.rate||"",price:p.price||"",cur:sp.c||"",goal:"taper",p:t.p||25,d:t.d||14,basis:(p.type==="vape"&&t.k==="day")?"day":"str",last:""};
-}
-const wzErr=t=>{$("wzE").textContent=t};
-function wzSum(){
-  const a=(+W.rate||0)*(+W.price||0),c=W.cur||"";
-  $("wzS").textContent=a>0?`That is about ${c}${a.toFixed(2)} a day, ${c}${Math.round(a*30).toLocaleString()} a month and ${c}${Math.round(a*365).toLocaleString()} a year.`:"Add your price to see what you spend.";
-}
-const opts=(arr,cur)=>arr.map(([v,l])=>`<option value="${v}" ${String(cur)===String(v)?"selected":""}>${l}</option>`).join("");
-function wzRender(){
-  const st=wzStep;wzErr("");
-  $("wzDots").innerHTML=[0,1,2].map(i=>`<span class="${i===st?"on":i<st?"done":""}"></span>`).join("");
-  $("wzBack").style.visibility=st?"visible":"hidden";
-  $("wzNext").textContent=st===2?"Start my plan":"Next";
-  let t,b;
-  if(st===0){
-    t="Welcome, let's set you up";
-    b=`<p class="small" style="margin-bottom:12px">Three quick questions so your timer, goals and plan fit you. You can change everything later.</p><p style="font-weight:600;margin:0 0 8px">What do you use?</p><div class="opts">`+
-      ["cig","vape","pouch"].map(k=>`<button class="opt ${W.prod===k?"on":""}" data-k="prod" data-v="${k}">${WZ_NAME[k]}<small>${{cig:"Counted in cigarettes per day",vape:"Counted in pods or refills, tapered by mg strength",pouch:"Counted in pouches per day"}[k]}</small></button>`).join("")+`</div>`+
-      (W.prod==="vape"?`<label class="small" for="wzStr">Nicotine strength of your vape (mg per ml)</label><input id="wzStr" type="number" min="0" step="0.5" inputmode="decimal" data-f="strength" value="${esc(String(W.strength))}" placeholder="e.g. 20">`:"");
-  }else if(st===1){
-    t="How much do you use?";
-    b=`<label class="small" for="wzRate">How many ${WZ_UNIT[W.prod]}?</label><input id="wzRate" type="number" min="0" step="0.5" inputmode="decimal" data-f="rate" value="${esc(String(W.rate))}" placeholder="e.g. 15">
-    <div class="wzr"><div><label class="small" for="wzCur">Currency</label><input id="wzCur" maxlength="3" data-f="cur" value="${esc(W.cur)}" placeholder="$"></div><div><label class="small" for="wzPr">Price per ${WZ_ONE[W.prod]}</label><input id="wzPr" type="number" min="0" step="0.01" inputmode="decimal" data-f="price" value="${esc(String(W.price))}" placeholder="0.50"></div></div>
-    <p class="small" style="margin-top:6px">Tip: pack price divided by the number of pieces in it.</p><p class="small" id="wzS" style="margin-top:6px;font-weight:600"></p>`;
-  }else{
-    t="What is your goal?";
-    b=`<div class="opts"><button class="opt ${W.goal==="cold"?"on":""}" data-k="goal" data-v="cold">Quit now (cold turkey)<small>Your clock starts today. The hardest days are usually 1 to 3.</small></button><button class="opt ${W.goal==="taper"?"on":""}" data-k="goal" data-v="taper">Slow taper<small>Step down gradually, usually over 4 to 12 weeks.</small></button></div>`;
-    if(W.goal==="taper"){
-      b+=`<div class="wzr"><div><label class="small" for="wzP">Cut each step</label><select id="wzP" data-f="p">${opts([[10,"10% (gentle)"],[25,"25%"],[33,"33%"],[50,"50% (fast)"]],W.p)}</select></div><div><label class="small" for="wzD">Step length</label><select id="wzD" data-f="d">${opts([[7,"1 week"],[10,"10 days"],[14,"2 weeks"]],W.d)}</select></div></div>`;
-      if(W.prod==="vape")b+=`<label class="small" for="wzBa">Taper by</label><select id="wzBa" data-f="basis">${opts([["str","Lowering strength (mg/ml)"],["day","Using less per day"]],W.basis)}</select>`;
-    }
-    b+=`<label class="small" for="wzLast">When was your last use?</label><input id="wzLast" type="datetime-local" data-f="last" value="${W.last}" max="${localNow()}"><p class="small" style="margin-top:6px">This starts your timer. Starting a new plan replaces your current one, and your history stays.</p>`;
-  }
-  $("wzT").textContent=t;$("wzB").innerHTML=b;
-  if(st===1)wzSum();
-}
-$("wzB").onclick=e=>{const o=e.target.closest(".opt");if(!o)return;W[o.dataset.k]=o.dataset.v;wzRender()};
-$("wzB").oninput=$("wzB").onchange=e=>{
-  const f=e.target.dataset.f;if(!f)return;
-  W[f]=(f==="p"||f==="d")?+e.target.value:e.target.value;
-  if(wzStep===1)wzSum();
-};
-$("wzBack").onclick=()=>{if(wzStep>0){wzStep--;wzRender()}};
-$("wzNext").onclick=()=>{
-  if(wzStep===0){
-    if(!W.prod)return wzErr("Pick what you use.");
-    if(W.prod==="vape"&&!(+W.strength>0))return wzErr("Enter your vape strength in mg per ml.");
-  }
-  if(wzStep===1&&!(+W.rate>0))return wzErr("Enter how many you use per day.");
-  if(wzStep===2){wzFinish();return}
-  wzStep++;if(wzStep===2&&!W.last)W.last=localNow();wzRender();
-};
-function wzFinish(){
-  const n={...S},prod=W.prod,rate=+W.rate,price=+W.price||0;
-  n.prod={type:prod,rate,price,strength:+W.strength||0};
-  n.sp={c:(W.cur||"").trim(),a:Math.round(rate*price*100)/100};
-  let ts=W.last?new Date(W.last).getTime():Date.now();if(!(ts>0)||ts>Date.now())ts=Date.now();
-  n.last=ts;
-  if(W.goal==="taper"){
-    const byStr=prod==="vape"&&W.basis==="str";
-    n.tp={a:byStr?+W.strength:rate,u:byStr?"mg/ml":WZ_UNIT[prod],k:byStr?"str":"day",p:W.p,d:W.d,s:new Date().setHours(0,0,0,0)};
-  }else delete n.tp;
-  n.onb=1;
-  applyState(n,S.bk);
-  $("wiz").hidden=true;
-  toast(W.goal==="taper"?"Your taper plan is ready. See Weekly expectations below.":"Your clock is running. You've got this.");
-  scrollTo({top:0,behavior:"smooth"});
-}
-function wzOpen(){wzInit();wzStep=0;$("wiz").hidden=false;wzRender();$("wzNext").focus()}
-$("wzSkip").onclick=()=>{S.onb=1;save();$("wiz").hidden=true};
-$("wzOpen").onclick=wzOpen;
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("wiz").hidden)$("wzSkip").click()});
-
-// ---- Savings, reason, quick bar, toast ----
-function planCtx(){const P=pl(),pr=S.prod?` Product: ${WZ_NAME[S.prod.type]}, ${S.prod.rate} ${WZ_UNIT[S.prod.type]}${S.prod.type==="vape"?`, ${S.prod.strength} mg/ml`:""}.`:"";return pr+(P?` Taper plan step ${P.i+1}: limit ${P.v} ${P.t.u}${P.t.k==="str"?" (strength)":" per day"}, used today ${used()}.`:"")}
-function saved(){
-  const a=S.sp&&S.sp.a;if(!(a>0))return 0;
-  const P=pl(),D=864e5;
-  if(P&&P.t.k!=="str"){let tot=0;const days=Math.floor((Date.now()-P.t.s)/D);
-    for(let k=0;k<days;k++){const i=Math.min(P.o.length-1,Math.floor(k/P.t.d));tot+=a*(P.t.a-P.o[i])/P.t.a}
-    return tot}
-  return a*(Date.now()-S.last)/D;
-}
-function renderStats(){
-  const ms=Math.max(0,Date.now()-S.last),best=Math.max(ms,...S.hist.map(x=>x.end-x.start));
-  $("stSave").textContent=(S.sp&&S.sp.c||"")+Math.round(saved()).toLocaleString();
-  $("stBest").textContent=dur(best);$("stUrge").textContent=S.urges;
-  const sa=S.sp&&S.sp.a,sc=(S.sp&&S.sp.c)||"";
-  $("spNote").textContent=sa>0?`Baseline: ${sc}${Math.round(sa).toLocaleString()} a day, about ${sc}${Math.round(sa*30).toLocaleString()} a month and ${sc}${Math.round(sa*365).toLocaleString()} a year.`:"";
-}
-$("spCur").oninput=$("spAmt").oninput=()=>{S.sp={c:$("spCur").value,a:parseFloat($("spAmt").value)||0};save()};
-if(S.sp){$("spCur").value=S.sp.c||"";$("spAmt").value=S.sp.a||""}
-function showWhy(){const w=$("whyOut");w.hidden=!S.why;w.textContent=S.why?"Remember why: "+S.why:""}
-$("whyIn").oninput=()=>{S.why=$("whyIn").value.trim();save();showWhy()};
-if(S.why)$("whyIn").value=S.why;showWhy();
-let toastT=0;
-function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true},4500)}
-function badgeToast(all){
-  const ids=all.filter(x=>x[0]).map(x=>x[2]);
-  if(!S.seen){S.seen=ids;save();return}
-  const nw=ids.filter(x=>!S.seen.includes(x));
-  if(nw.length){S.seen=ids;save();toast("Badge unlocked: "+nw.join(", "))}
-}
-const go=el=>el.closest("section").scrollIntoView({behavior:"smooth",block:"start"});
-$("qCrave").onclick=()=>{go($("uGo"));if(!uInt)$("uGo").click()};
-$("qAsk").onclick=()=>{go($("aIn"));setTimeout(()=>$("aIn").focus({preventScroll:true}),400)};
-$("qGoals").onclick=()=>go($("gList"));
-
-// ---- Encouragement ----
-const STAGE_ENC=["You're at the very start, and every minute counts. Be kind to yourself.","A first small urge is normal. It's a request, not a command.","Urges pass in minutes. You've handled harder things than this.","A short temper is just withdrawal talking. It's temporary and it means your body is adjusting.","Half a day done! The edgy feeling is real, and it will not last.","A day or more in. Your body is already clearing nicotine out.","This is usually the hardest stretch. If you're here, you're doing the hard part right now, and it gets easier from here.","The worst is behind you. Cravings are getting shorter and weaker.","A week or more! Most cravings now are habits, and habits can be rewired.","Weeks in. Your mood and focus are coming back. Be proud of that.","Months of effort are showing. You've proven you can ride out the urges.","Three months and beyond. You're not just resisting, you're becoming someone who doesn't need it."];
-const GEN=["Every urge you wait out makes the next one weaker.","You don't have to be perfect, just keep going.","Progress counts, even on the hard days.","You are doing something really hard, and you're doing it.","Cravings are waves. They rise, peak and fall, every time.","Think of the person you'll be a month from now. They're thankful you didn't give in today.","A slip is a lesson, not a verdict. Start again right away.","Your lungs, heart and mood are already healing."];
-const SLIP="A slip is not the end. Look at what triggered it, forgive yourself, and start again right now. Your earlier progress still counts.";
-let cheerI=-1;
-$("cheerBtn").onclick=()=>{cheerI=cheerI<0?0:cheerI+1;$("cheer").textContent=GEN[cheerI%GEN.length]};
-const _took=$("took").onclick;
-$("took").onclick=function(){
-  const armed=!!this.dataset.arm;_took.call(this);
-  if(!armed)return;
-  const P=pl();cheerI=-2;
-  if(P&&P.v>0&&P.t.k!=="str"){
-    S.use[gKey]=used()+1;save();
-    $("cheer").textContent=used()>P.v?"That puts you over today's limit. It happens. Stretch the next gap and start fresh tomorrow.":`Logged. That's within today's limit, with ${P.v-used()} left. Try to stretch the time before your next use.`;
-  }else $("cheer").textContent=SLIP;
-  updDay();
-};
-function renderCheer(h){if(cheerI===-1)$("cheer").textContent=STAGE_ENC[idx(h)]}
-const _render=render;render=function(){_render();renderCheer(Math.max(0,Date.now()-S.last)/H);renderNowPlan();renderStats()};
-
-// ---- AI assistant (uses the page's "sample" capability) ----
-const SYS="You are a friendly, knowledgeable AI chat assistant inside a nicotine-quit tracker app. Answer any question the user asks, on any topic, clearly and helpfully. Use light markdown when it helps (bold for key points, short bullet or numbered lists) and no tables. Keep answers short (about 150 words) unless they ask for more. When the question relates to nicotine, withdrawal, cravings, tapering or their progress, use the tracker context to tailor your answer, give 2 or 3 practical steps and add a brief word of encouragement. You are not a doctor: do not diagnose or give personal medication doses, and point to a pharmacist or doctor for those. If they mention chest pain, trouble breathing, fainting, thoughts of self-harm, or severe or lasting low mood, tell them to contact emergency services, a doctor or a crisis line right away. If they had a slip, respond without judgment.";
-// Built-in guide, used when AI replies are not available in this view
-const EMERG=/chest pain|can'?t breathe|cannot breathe|trouble breathing|short of breath|faint|passed out|suicid|kill myself|hurt myself|self.?harm|end my life|want to die/i;
-const GUIDE=[
-[/crav|urge|want (one|it|to (smoke|vape|use))|tempt|give in/,"Urges peak and pass within 3 to 5 minutes. Tap Craving now to start the 5-minute timer, sip cold water, breathe in for 4 and out for 6, and move around for a few minutes. Hold off on deciding until the timer ends."],
-[/headache|head hurts|migraine/,"Headaches are common in the first days (often days 1 to 3) as your body adjusts. Drink water, eat regularly and rest somewhere quiet. Caffeine can feel stronger once you cut nicotine, so you may want less. Ask a pharmacist about a suitable pain reliever, and see a doctor if it is severe, sudden or lasts more than a couple of weeks."],
-[/sleep|insomnia|awake|nightmare|dream/,"Sleep often gets lighter in the first 1 to 2 weeks. Keep a fixed bedtime, skip caffeine after midday, keep screens away for an hour before bed, and try slow breathing or a warm shower. It usually improves within a few weeks."],
-[/irritab|angry|anger|mood|snap|short temper|frustrat/,"Irritability is one of the most common signs and often peaks around days 2 to 3. Tell people close to you that you are cutting down, take a short walk or a breathing break before reacting, and remember it is temporary."],
-[/anxi|nervous|restless|panic|jitter|on edge|stress/,"Anxiety and restlessness are common withdrawal effects. Try slow breathing (in for 4, out for 6, five times), a short walk, and less caffeine. If it feels intense or you have panic attacks, please talk to a doctor."],
-[/concentrat|focus|fog|forget|distract/,"Trouble focusing is normal early on and improves over 2 to 4 weeks. Work in short blocks of 20 to 25 minutes, take movement breaks, keep water nearby and write tasks down."],
-[/hungry|appetite|eat|weight|snack/,"Appetite often rises. Keep crunchy low-calorie snacks like carrots or apple slices, sip water, eat regular meals and take a short walk after eating. This usually settles within a few weeks."],
-[/cough|throat|phlegm|lungs|mucus/,"A temporary cough can appear as your airways clear. Stay hydrated and rest. Chest pain, trouble breathing or coughing up blood needs a doctor right away."],
-[/tired|fatigue|exhaust|energy|sleepy|weak/,"Tiredness is common in the first week or two. Prioritise sleep, eat regular meals and do light exercise like a walk. Energy usually comes back as your body adjusts."],
-[/sad|depress|low mood|hopeless|cry|empty|lonely/,"Low mood can show up during withdrawal and usually lifts over a few weeks. Keep your routines, get daylight and talk to someone you trust. If it lasts or feels heavy, speak to a doctor."],
-[/nause|dizz|stomach|constipat|bloat|sweat/,"Some people get dizziness, stomach upset, constipation or sweating. Drink water, eat fibre, and move around gently. If it is severe or does not ease, see a doctor."],
-[/slip|relaps|gave in|used again|smoked|vaped|had (one|some)|failed/,"A slip is not the end. Tap I just had nicotine so your log stays honest, note what triggered it, and start again right away. Most people need several tries, and your earlier progress still counts."]
-];
-function localAnswer(q){
-  const ms=Math.max(0,Date.now()-S.last),st=STAGES[idx(ms/H)];
-  if(EMERG.test(q))return "This could be serious. Please contact your local emergency number or a doctor right now. If you are thinking about harming yourself, call a crisis line or emergency services, or reach out to someone near you immediately. You don't have to handle this alone.";
-  const m=GUIDE.find(g=>g[0].test(q.toLowerCase()));
-  const body=m?m[1]:"I can help with cravings, headaches, sleep, irritability, anxiety, focus, appetite, cough, tiredness, low mood and slips. Tell me which one you feel, or tap one of the quick buttons above.";
-  return `${body}\n\nRight now you are in "${st[1]}" (${dur(ms)} since your last use). ${GEN[Math.floor(Math.random()*GEN.length)]}\n\n(Built-in guide. AI replies aren't available in this view. Open the page from the Claude app or claude.ai chat to use the AI.)`;
-}
-let aHist=[],aBusy=false;
-function md(src){
-  const e=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  const inl=s=>e(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*\w])\*([^*\s][^*]*)\*/g,"$1<em>$2</em>").replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"']+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  const lines=String(src).replace(/\r/g,"").split("\n");let out="",list=null,para=[];
-  const flushP=()=>{if(para.length){out+="<p>"+para.map(inl).join("<br>")+"</p>";para=[]}};
-  const closeL=()=>{if(list){out+="</"+list+">";list=null}};
-  for(const ln of lines){
-    let m;
-    if(!ln.trim()){flushP();closeL();continue}
-    if(m=ln.match(/^\s*#{1,4}\s+(.*)/)){flushP();closeL();out+="<h4>"+inl(m[1])+"</h4>";continue}
-    if(m=ln.match(/^\s*[-*\u2022]\s+(.*)/)){flushP();if(list!=="ul"){closeL();out+="<ul>";list="ul"}out+="<li>"+inl(m[1])+"</li>";continue}
-    if(m=ln.match(/^\s*\d+[.)]\s+(.*)/)){flushP();if(list!=="ol"){closeL();out+="<ol>";list="ol"}out+="<li>"+inl(m[1])+"</li>";continue}
-    closeL();para.push(ln);
-  }
-  flushP();closeL();return out;
-}
-function bubble(cls,t){
-  const log=$("aLog"),row=document.createElement("div"),m=document.createElement("div"),ts=document.createElement("div");
-  row.className="row "+cls;m.className="msg "+cls;ts.className="ts";
-  ts.textContent=new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
-  const down=()=>{log.scrollTop=log.scrollHeight};
-  if(cls==="a"){
-    Object.defineProperty(m,"textContent",{configurable:true,get(){return m.dataset.raw||""},set(v){v=String(v);m.dataset.raw=v;m.innerHTML=md(v);down()}});
-    if(t==="Thinking...")m.innerHTML='<span class="typing" role="status" aria-label="AI is typing"><i></i><i></i><i></i></span>';else m.textContent=t;
-  }else m.textContent=t;
-  row.append(m,ts);log.appendChild(row);down();return m;
-}
-const EMERGMSG="This could be serious. Please contact your local emergency number or a doctor right now. If you are thinking about harming yourself, call a crisis line or emergency services, or reach out to someone near you immediately. You don't have to handle this alone.";
-const AIK="nic_ai",GEM="https://generativelanguage.googleapis.com/v1beta/models";
-const PRE={gemini:{m:"gemini-2.5-flash"},openrouter:{u:"https://openrouter.ai/api/v1",m:""},groq:{u:"https://api.groq.com/openai/v1",m:"llama-3.3-70b-versatile"},ollama:{u:"http://localhost:11434/v1",m:"llama3.2"},custom:{u:"",m:""}};
-let AI={p:"gemini",k:"",m:"",u:""};
-try{AI={...AI,...JSON.parse(localStorage.getItem(AIK)||"{}")}}catch(e){}
-const aiRead=()=>{AI={p:$("aiP").value,k:$("aiK").value.trim(),m:$("aiM").value.trim(),u:$("aiU").value.trim()}};
-function aiShow(){$("aiP").value=AI.p;$("aiK").value=AI.k;$("aiM").value=AI.m;$("aiU").value=AI.u;$("aiUw").style.display=AI.p==="gemini"?"none":"block";$("aiM").placeholder="e.g. "+(PRE[AI.p].m||"model name");$("aiU").placeholder=PRE[AI.p].u||"https://.../v1"}
-$("aiP").onchange=()=>{AI={p:$("aiP").value,k:AI.k,m:"",u:""};aiShow()};
-$("aiSave").onclick=()=>{aiRead();try{localStorage.setItem(AIK,JSON.stringify(AI))}catch(e){}$("aiTest").onclick()};
-aiShow();if(!AI.k&&AI.p==="gemini")$("aiSet").open=true;
-async function callAI(msgs){
-  if(AI.p==="gemini"){
-    if(!AI.k)throw{code:"nokey"};
-    const m=AI.m||PRE.gemini.m;
-    const r=await fetch(`${GEM}/${encodeURIComponent(m)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":AI.k},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:msgs.map(x=>({role:x.role==="assistant"?"model":"user",parts:[{text:x.content}]})),generationConfig:{maxOutputTokens:900,temperature:.6}})});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&d.error.message};
-    const t=((d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts)||[]).map(x=>x.text||"").join("").trim();
-    if(!t)throw{code:"empty"};return t;
-  }
-  const base=(AI.u||PRE[AI.p].u||"").replace(/\/$/,""),m=AI.m||PRE[AI.p].m;
-  if(!base||!m)throw{code:"noconf"};
-  if(AI.p!=="ollama"&&!AI.k)throw{code:"nokey"};
-  const r=await fetch(base+"/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",...(AI.k?{Authorization:"Bearer "+AI.k}:{})},body:JSON.stringify({model:m,messages:[{role:"system",content:SYS},...msgs],max_tokens:700,temperature:.6})});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&(d.error.message||d.error)};
-  const t=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||"").trim();
-  if(!t)throw{code:"empty"};return t;
-}
-function aiErr(e){
-  if(e.code==="nokey")return "Add your key under \"Set up the AI\" in this card, then tap Save and test.";
-  if(e.code==="noconf")return "Add the base URL and model name under Advanced in \"Set up the AI\", then tap Save and test.";
-  if(e.code==="empty")return "The AI sent an empty reply. Try again, or pick another model.";
-  if(e.code==="http"){const s=e.status;
-    if(s===401||s===403)return "The provider rejected your key. Check it under \"Set up the AI\".";
-    if(s===404)return "Model not found. Open Advanced under \"Set up the AI\", tap Find models and pick one.";
-    if(s===429)return "Rate limit reached. Wait a minute and try again.";
-    return `The provider returned an error (${s}). ${e.msg||""}`.trim()}
-  return "Couldn't reach the provider. Check your internet connection and the settings (for Ollama, it must be running and allow this page's origin).";
-}
-$("aiTest").onclick=async()=>{aiRead();$("aiMsg").textContent="Testing...";try{const t=await callAI([{role:"user",content:"Reply with the single word: connected"}]);$("aiMsg").textContent="Works: "+t.slice(0,60)}catch(e){$("aiMsg").textContent=aiErr(e)}};
-$("aiFind").onclick=async()=>{aiRead();
-  try{
-    let names=[];
-    if(AI.p==="gemini"){if(!AI.k)throw{code:"nokey"};const r=await fetch(GEM+"?pageSize=100",{headers:{"x-goog-api-key":AI.k}});const d=await r.json();if(!r.ok)throw{code:"http",status:r.status,msg:d.error&&d.error.message};names=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes("generateContent")).map(m=>m.name.replace("models/",""))}
-    else{const base=(AI.u||PRE[AI.p].u||"").replace(/\/$/,"");const r=await fetch(base+"/models",{headers:AI.k?{Authorization:"Bearer "+AI.k}:{}});const d=await r.json();if(!r.ok)throw{code:"http",status:r.status};names=(d.data||[]).map(m=>m.id)}
-    $("aiList").innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
-    $("aiMsg").textContent=names.length?`Found ${names.length} models. Tap the Model box to pick one.`:"No models found.";
-  }catch(e){$("aiMsg").textContent=aiErr(e)}
-};
-async function ask(q,label){
-  q=q.trim();if(!q||aBusy)return;aBusy=true;$("aGo").disabled=true;$("aIn").value="";
-  bubble("u",label||q);const out=bubble("a","Thinking...");
-  aHist.push({role:"user",content:q});
-  const em=EMERG.test(q)?EMERGMSG+"\n\n":"";
-  try{
-    const ms=Math.max(0,Date.now()-S.last),st=STAGES[idx(ms/H)];
-    const msgs=(aHist.length>7?aHist.slice(aHist.length-7):aHist.slice()).map(m=>({...m}));
-    msgs[msgs.length-1].content+=`\n\n[Tracker context: ${dur(ms)} since last nicotine, phase "${st[1]}". Times restarted: ${S.hist.length}.${planCtx()}]`;
-    const t=em+await callAI(msgs);
-    out.textContent=t;aHist.push({role:"assistant",content:t});
-  }catch(e){aHist.pop();out.textContent=em+aiErr(e)}
-  aBusy=false;$("aGo").disabled=false;
-}
-bubble("a","Hi, I'm here for **cravings**, **withdrawal** or any question you have. What's on your mind?");
-$("aGo").onclick=()=>ask($("aIn").value);
-$("aIn").onkeydown=e=>{if(e.key==="Enter")ask($("aIn").value)};
-$("aChips").onclick=e=>{const b=e.target.closest("button");if(b)ask(b.dataset.q||b.textContent,b.textContent)};
-
-// ---- Taper planner ----
-function taperSteps(a,p){
-  const r=x=>x>=10?Math.round(x):Math.round(x*2)/2,o=[a];let c=a;
-  while(c>0){let n=r(c*(1-p));if(n>=c)n=c-(c>=2?1:.5);if(n<=Math.max(.5,a*.1))n=0;o.push(n);c=n}
-  return o;
-}
-function renderTaper(){
-  const t=S.tp;if(!t){$("tOut").innerHTML="";$("tSum").textContent="";return}
-  const o=taperSteps(t.a,t.p/100),day=864e5,f=x=>new Date(x).toLocaleDateString([],{month:"short",day:"numeric"});
-  const cur=Math.min(o.length-1,Math.max(0,Math.floor((Date.now()-t.s)/(t.d*day))));
-  $("tSum").textContent=`${o.length-1} steps of ${t.d} days. About ${Math.round((o.length-1)*t.d/7)} weeks in total, finishing around ${f(t.s+(o.length-1)*t.d*day)}.`;
-  $("tOut").innerHTML=o.map((v,i)=>`<li class="${i===cur?'cur':''}">${v>0?`${v} ${esc(t.u)}`:"0: stop, you're nicotine-free"} <span class="small">(${f(t.s+i*t.d*day)}${v>0?" to "+f(t.s+(i+1)*t.d*day-day):""})</span>${i===cur?" ← you are here":""}</li>`).join("");
-}
-$("tGo").onclick=()=>{const a=parseFloat($("tA").value);if(!(a>0))return;
-  S.tp={a,u:$("tU").value.trim()||"per day",k:$("tK").value,p:+$("tP").value,d:+$("tD").value,s:new Date().setHours(0,0,0,0)};save();renderTaper();renderGoals()};
-if(S.tp){$("tA").value=S.tp.a;$("tU").value=S.tp.u;$("tP").value=S.tp.p;$("tD").value=S.tp.d;$("tK").value=S.tp.k||"day"}
-renderTaper();
-
-save();render();setInterval(render,1000);
-if(!S.onb&&!S.tp&&!S.sp)wzOpen();
-</script>
-</body>
-</html>
+function add(c,t){const d=document.createElement("div");d.className="msg "+c;if(c==="u")d.textContent=t;else d.innerHTML=t;$("log").appendChild(d);$("log").scrollTop=1e6;return d}
+async function ask(q,l){q=(q||"").trim();if(!q||busy)return;busy=1;add("u",l||q);const o=add("a","...");ch.push({role:"user",content:q});
+ try{const P=plan(),m=(ch.length>9?ch.slice(-9):ch).map(x=>({...x}));
+  m[m.length-1].content+=`\n\n[Tracker context: ${dur(Date.now()-S.last)} since last nicotine.${P?` Taper step ${P.i+1} of ${P.n}, limit ${P.v} ${P.t.u}.`:""}]`;
+  const t=await callAI(m);if(!t)throw{c:"empty"};o.innerHTML=md(t);ch.push({role:"assistant",content:t});$("log").scrollTop=1e6}
+ catch(e){ch.pop();o.textContent=aiErr(e)}busy=0}
+go("home");tick();setInterval(tick,1000);if(!S.tp&&!S.sp)toast("Welcome. Tap Plan to set up your quit plan.");
+</script></body></html>
