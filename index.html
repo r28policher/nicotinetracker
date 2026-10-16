@@ -129,22 +129,30 @@ function tick(){
 const TIPS=["Breathe in for 4, out for 6. Repeat.","Sip cold water slowly.","Stand up and walk around.","Chew gum or a crunchy snack.","Text someone: 'having a craving, talk to me'."];let cT=0,cI=0;
 function crave(){cT=Date.now()+3e5;$("crave").hidden=false;$("crave").innerHTML=`<div class="n" style="letter-spacing:.1em;font-weight:700">URGES PASS IN ABOUT 5 MINUTES</div><div class="ring" style="width:260px"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="75" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="8"/><circle id="cr" cx="80" cy="80" r="75" fill="none" stroke="#F59E0B" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 472" transform="rotate(-90 80 80)"/></svg><div class="rc"><b id="ct" style="font:800 46px Manrope;font-variant-numeric:tabular-nums">5:00</b></div></div><p id="ctip" style="font-size:18px;font-weight:600;max-width:300px;margin:0"></p><button class="btn em" id="cdone" data-a="cdone" hidden>I resisted it</button><button class="btn" data-a="cclose">Close</button>`;cI=setInterval(cTick,250);cTick()}
 function cTick(){const r=Math.max(0,cT-Date.now()),s=Math.ceil(r/1e3);$("ct").textContent=r?Math.floor(s/60)+":"+P2(s%60):"Done";$("cr").setAttribute("stroke-dasharray",((1-r/3e5)*471)+" 472");$("ctip").textContent=r?TIPS[Math.floor((3e5-r)/6e4)%5]:"You waited it out. That urge is gone.";if(!r){clearInterval(cI);$("cdone").hidden=false}}
+const CT=[[0,"First 3 days","Strongest cravings, irritability, headaches and poor sleep. The hardest stretch is usually days 2 to 3."],[3,"Days 3 to 7","Cravings come in shorter waves. Sleep and mood start to settle."],[7,"Weeks 1 to 2","Physical symptoms fade. Urges are mostly habits and triggers."],[14,"Weeks 2 to 4","Mood and focus improve. Appetite may stay a bit higher."],[30,"Months 1 to 3","Cravings are rare and situational. Energy and breathing improve."],[90,"3 months and beyond","Brain chemistry is mostly rebalanced. Triggers can still surprise you."]];
+function coldCards(){
+  const free=Math.max(0,Date.now()-S.last),days=free/DAY,q=qday(),ph=CT.reduce((a,x,i)=>days>=x[0]?i:a,0);
+  return `<div class="g"><div class="lb">Quit now (cold turkey)</div><div class="vl" style="font-size:34px;margin:4px 0">${q?"Day "+q:"Day 1"}</div><div class="cp">${dur(free)} nicotine-free. No tapering: every day counts from your start.</div></div>
+<div class="g"><h2>What to expect</h2>${CT.map((x,i)=>`<div class="step ${i<ph?"done":i===ph?"on":""}"><div class="dot">${i<ph?"&#10003;":i+1}</div><div class="sp"><b>${x[1]}</b><div class="n">${x[2]}</div><div class="n" style="margin-top:2px">${i===ph?"You are here":i<ph?"Completed":"From "+fd(S.last+x[0]*DAY)}</div></div></div>`).join("")}</div>`;
+}
 // ---- Views ----
 function vPlan(){
-  const P=plan(),u=S.use[dk()]||0,t=S.tp||{},p=S.prod||{};
-  let h=`<div class="hd"><div><h1>Plan</h1><div class="sub">${P?"Your taper, step by step":"Build your quit plan"}</div></div></div>`;
+  const P=plan(),u=S.use[dk()]||0,t=S.tp||{},p=S.prod||{},goal=S.goal||(S.tp?"taper":(S.prod?"cold":"taper")),has=P||(goal==="cold"&&S.prod);
+  let h=`<div class="hd"><div><h1>Plan</h1><div class="sub">${P?"Your taper, step by step":has?"Quit now, day by day":"Build your quit plan"}</div></div></div>`;
   h+=`<div class="g"><h2>Quit start date and spending</h2><label for="qd">When did you start quitting?</label><input id="qd" type="datetime-local" max="${lnow()}" value="${qdv()}"><div class="two"><div><label for="qc">Currency</label>${curUI("qc",(S.sp&&S.sp.c)||"$")}</div><div><label for="qs">Daily spend</label><input id="qs" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" value="${(S.sp&&S.sp.a)||""}"></div></div><p class="n" id="qdn" style="margin:8px 0 0">${qtxt()}</p></div>`;
   if(P){
     const nx=P.o[P.i+1],per=P.t.k==="day"&&P.v>0;
     h+=`<div class="g"><div class="lb">Step ${P.i+1} of ${P.n}</div><div class="vl" style="font-size:34px;margin:4px 0">${P.v>0?P.v+" "+esc(P.t.u):"Stop: 0"}</div><div class="cp">${nx===undefined?"Final step of your plan":"Next step on "+fd(P.t.s+(P.i+1)*P.t.d*DAY)+": "+nx+(nx?" "+esc(P.t.u):" (stop)")}</div>${per?`<div class="row" style="margin-top:14px"><div class="sp"><div class="lb">Used today</div><b style="font-size:20px">${u} of ${P.v}</b> <span class="n">${u>P.v?"over by "+(u-P.v):P.v-u+" left"}</span></div><button class="send" style="background:none;border:1px solid var(--ln);color:var(--tx)" data-a="dn" aria-label="One less">${ic("minus")}</button><button class="send" data-a="up" aria-label="One more">${ic("plus")}</button></div>`:""}</div>
 <div class="g"><h2>Steps</h2>${P.o.map((v,i)=>`<div class="step ${i<P.i?"done":i===P.i?"on":""}"><div class="dot">${i<P.i?ic("plus",12).replace(/<path[^>]*>/,'<path d="M5 12l5 5 9-10"/>'):i+1}</div><div class="sp"><b>${v>0?v+" "+esc(P.t.u):"Stop"}</b><div class="n">${fd(P.t.s+i*P.t.d*DAY)}${v>0?" to "+fd(P.t.s+(i+1)*P.t.d*DAY-DAY):" onward"}</div></div></div>`).join("")}</div>`;
   }
+  if(!P&&goal==="cold"&&S.prod)h+=coldCards();
   const o=(v,l,c)=>`<option value="${v}" ${String(c)===String(v)?"selected":""}>${l}</option>`;
-  h+=`<details class="g" ${P?"":"open"}><summary><b class="sp">${P?"Edit plan":"Create plan"}</b><span class="chev">${ic("chev",20,"#94A3B8")}</span></summary>
+  h+=`<details class="g" ${has?"":"open"}><summary><b class="sp">${has?"Edit plan":"Create plan"}</b><span class="chev">${ic("chev",20,"#94A3B8")}</span></summary>
 ${prodUI("p",p)}
 <div class="two"><div><label for="pa">Amount per day (mg for patch)</label><input id="pa" type="number" min="0" step="0.5" inputmode="decimal" value="${p.rate||""}"></div><div><label for="pr">Price per piece</label><input id="pr" type="number" min="0" step="0.01" inputmode="decimal" value="${p.price||""}"></div></div>
-<label for="pk">Currency</label>${curUI("pk",(S.sp&&S.sp.c)||"$")}<label for="pg">Goal</label><select id="pg">${o("taper","Slow taper",S.tp||!P?"taper":"cold")}${o("cold","Quit now (cold turkey)",P?"taper":"x")}</select>
-<div class="two"><div><label for="pc">Cut each step</label><select id="pc">${o(10,"10%",t.p)}${o(25,"25%",t.p||25)}${o(33,"33%",t.p)}${o(50,"50%",t.p)}</select></div><div><label for="pd">Step length</label><select id="pd">${o(7,"1 week",t.d)}${o(10,"10 days",t.d)}${o(14,"2 weeks",t.d||14)}</select></div></div>
+<label for="pk">Currency</label>${curUI("pk",(S.sp&&S.sp.c)||"$")}<label for="pg">Goal</label><select id="pg">${o("taper","Slow taper",goal)}${o("cold","Quit now (cold turkey)",goal)}</select>
+<div id="tpw" ${goal==="taper"?"":"hidden"}><div class="two"><div><label for="pc">Cut each step</label><select id="pc">${o(10,"10%",t.p)}${o(25,"25%",t.p||25)}${o(33,"33%",t.p)}${o(50,"50%",t.p)}</select></div><div><label for="pd">Step length</label><select id="pd">${o(7,"1 week",t.d)}${o(10,"10 days",t.d)}${o(14,"2 weeks",t.d||14)}</select></div></div></div>
+<div id="cdw" class="n" ${goal==="cold"?"":"hidden"} style="margin-top:12px;line-height:1.55"><b style="color:var(--tx)">Quit now (cold turkey)</b><br>No step-down: your clock starts from your quit start date and every nicotine-free day counts. Expect the strongest cravings in the first 3 days, then it eases. Keep the craving timer and the AI coach handy.</div>
 <button class="btn em" data-a="savep">Save plan</button><p class="n">The plan starts on your quit start date, and your timer keeps counting from it. Your history stays.</p></details>`;
   $("v-plan").innerHTML=h;
 }
@@ -190,8 +198,8 @@ const A={
  up(){S.use[dk()]=(S.use[dk()]||0)+1;sv();vPlan()},dn(){S.use[dk()]=Math.max(0,(S.use[dk()]||0)-1);sv();vPlan()},
  savep(){const a=+$("pa").value,pr=+$("pr").value||0,pd=$("pt").value,cn=$("pn").value.trim(),cu=$("pu").value.trim()||"pieces";if(!(a>0))return toast("Enter your amount per day");
   S.prod={type:pd,rate:a,price:pr,name:cn,unit:cu};{const da=Math.round((pd==="patch"?pr:a*pr)*100)/100;S.sp={c:curVal("pk"),a:da>0?da:((S.sp&&S.sp.a)||0)}}if(!S.qd){S.qd=lnow();S.last=Date.now()}
-  if($("pg").value==="taper")S.tp={a,u:pd==="custom"?cu+" per day":UN[pd],k:pd==="patch"?"mg":"day",p:+$("pc").value,d:+$("pd").value,s:qs0()};else delete S.tp;
-  if(S.tp&&pd==="patch")S.tp.k="str";sv();toast("Plan saved. Your dashboard is updated.");go("home")},
+  S.goal=$("pg").value;if($("pg").value==="taper")S.tp={a,u:pd==="custom"?cu+" per day":UN[pd],k:pd==="patch"?"mg":"day",p:+$("pc").value,d:+$("pd").value,s:qs0()};else delete S.tp;
+  if(S.tp&&pd==="patch")S.tp.k="str";sv();toast(S.goal==="cold"?"Cold turkey plan saved. Your clock is running.":"Plan saved. Your dashboard is updated.");go("home")},
  mk(){const e=$("bk");e.value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));e.select();try{navigator.clipboard.writeText(e.value)}catch(x){}toast("Code ready. Keep it somewhere safe.")},
  ld(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to replace";setTimeout(()=>{delete b.dataset.arm;b.textContent="Load code"},4e3);return}delete b.dataset.arm;b.textContent="Load code";
   try{const x=JSON.parse(decodeURIComponent(escape(atob($("bk").value.trim()))));if(typeof x.last!=="number")throw 0;S=Object.assign({hist:[],use:{},urges:0},x);sv();toast("Restored.");go("home")}catch(e){toast("That code doesn't look right")}},
@@ -206,6 +214,7 @@ document.addEventListener("input",e=>{const i=e.target.id;
  else if(i==="pt"||i==="mt"){$(i[0]+"w").hidden=e.target.value!=="custom";if(i==="mt")saveProd()}
  else if(i==="mn"||i==="mu")saveProd();
  else if(i==="qd")applyQd(e.target.value);
+ else if(i==="pg"){$("tpw").hidden=e.target.value!=="taper";$("cdw").hidden=e.target.value!=="cold"}
  else if(i==="qc"||i==="qcx"||i==="qs"){if(i==="qc")$("qcx").hidden=e.target.value!=="_";S.sp={c:curVal("qc"),a:parseFloat($("qs").value)||0};sv();tick()}});
 $("qi").onkeydown=e=>{if(e.key==="Enter")A.send()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("crave").hidden)A.cclose()});
