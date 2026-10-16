@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Quit Tracker v2 (AI engines)</title>
+<title>Quit Tracker v2.1 (AI engines)</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0F172A;--g:rgba(30,41,59,.6);--ln:rgba(148,163,184,.24);--tx:#F1F5F9;--mu:#94A3B8;--em:#10B981;--em2:#34D399;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -71,8 +71,18 @@ const best=()=>Math.max(Date.now()-S.last,...S.hist.map(x=>x.end-x.start));
 let tt=0;function toast(t){const e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{e.hidden=true},3500)}
 const card=(i,c,t,v,s)=>`<div class="g"><div class="row"><div class="ic" style="background:${c}2a;color:${c}">${ic(i)}</div><span class="lb">${t}</span></div><div><div class="vl">${v}</div><div class="cp">${s}</div></div></div>`;
 
+// ---- v2.1 helpers: products, currency, quit date ----
+const PN={cig:"Cigarettes",vape:"Vape (pods)",pouch:"Pouches",patch:"Patch (mg)",custom:"Other / custom product"};
+const pname=p=>p&&p.type?(p.type==="custom"?(p.name||"Custom product"):PN[p.type]):"";
+const prodUI=(x,p)=>`<label for="${x}t">What do you use?</label><select id="${x}t">${Object.keys(PN).map(k=>`<option value="${k}" ${p.type===k?"selected":""}>${PN[k]}</option>`).join("")}</select><div id="${x}w" ${p.type==="custom"?"":"hidden"}><div class="two"><div><label for="${x}n">Product name</label><input id="${x}n" maxlength="30" placeholder="e.g. snus, nicotine gum" value="${esc(p.name||"")}"></div><div><label for="${x}u">Counted in</label><input id="${x}u" maxlength="20" placeholder="pieces" value="${esc(p.unit||"")}"></div></div></div>`;
+const CUR=["$","₱","€","£","¥","₹","₩"];
+const curUI=(id,v)=>{const k=!v||CUR.includes(v);return `<select id="${id}">${CUR.map(c=>`<option ${c===(v||"$")?"selected":""}>${c}</option>`).join("")}<option value="_" ${k?"":"selected"}>Other</option></select><input id="${id}x" maxlength="3" placeholder="Symbol" aria-label="Other currency symbol" value="${k?"":esc(v)}" style="margin-top:6px" ${k?"hidden":""}>`};
+const curVal=id=>{const v=$(id).value;return v==="_"?($(id+"x").value.trim()||"$"):v};
+function qday(){if(!S.qd)return 0;const a=new Date(S.qd+"T00:00:00"),t=new Date();t.setHours(0,0,0,0);const n=Math.round((t-a)/DAY)+1;return n>0?n:0}
+const qtxt=()=>S.qd?(qday()?"Day "+qday()+" of your quit journey":"Your quit journey starts on "+fd(new Date(S.qd+"T00:00:00"))):"Set the day you started quitting.";
+function saveProd(){S.prod=Object.assign(S.prod||{},{type:$("mt").value,name:$("mn").value.trim(),unit:$("mu").value.trim()});sv()}
 // ---- Home ----
-$("v-home").innerHTML=`<div class="hd"><div class="row"><div class="ic" style="background:rgba(16,185,129,.16);color:#34D399">${ic("shield")}</div><div><b style="font:800 17px Manrope">Quit Tracker</b><div class="sub" style="color:#34D399;font-weight:700;letter-spacing:.08em">VERSION 2</div></div></div></div>
+$("v-home").innerHTML=`<div class="hd"><div class="row"><div class="ic" style="background:rgba(16,185,129,.16);color:#34D399">${ic("shield")}</div><div><b style="font:800 17px Manrope">Quit Tracker</b><div class="sub" style="color:#34D399;font-weight:700;letter-spacing:.08em">VERSION 2.1</div></div></div><div class="mb" id="qdl" hidden></div></div>
 <button id="setup" class="btn em" data-a="go" data-t="plan" style="margin:0 0 14px">Set up your plan</button>
 <div class="ring"><svg viewBox="0 0 288 288" role="img" aria-label="Milestone progress"><circle cx="144" cy="144" r="128" fill="none" stroke="rgba(148,163,184,.14)" stroke-width="14"/><circle id="rp" cx="144" cy="144" r="128" fill="none" stroke="#10B981" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 804" transform="rotate(-90 144 144)" style="filter:drop-shadow(0 0 10px rgba(16,185,129,.65))"/></svg>
 <div class="rc"><div class="mb" id="mb"></div><div class="cd" id="cd"></div><div class="sub" id="since"></div></div></div>
@@ -88,7 +98,7 @@ function tick(){
   const ms=Math.max(0,Date.now()-S.last),t=Math.floor(ms/1e3),days=ms/DAY,m=MS.find(x=>x[0]>days)||MS[MS.length-1],pct=Math.min(100,Math.floor(days/m[0]*100));
   $("cd").innerHTML=[[Math.floor(t/86400),"DAYS"],[P2(Math.floor(t%86400/3600)),"HRS"],[P2(Math.floor(t%3600/60)),"MIN"],[P2(t%60),"SEC"]].map((x,i)=>(i?"<i>:</i>":"")+`<div><b>${P2(x[0])}</b><small>${x[1]}</small></div>`).join("");
   $("mb").textContent=`MILESTONE: ${m[1]} (${pct}% COMPLETE)`;$("rp").setAttribute("stroke-dasharray",(804.25*pct/100)+" 805");
-  $("since").textContent="Nicotine-free since "+fd(S.last);aiLbl();
+  $("since").textContent="Nicotine-free since "+fd(S.last);{const q=qday();$("qdl").hidden=!q;$("qdl").textContent="QUIT DAY "+q}aiLbl();
   const b=best(),P=plan();$("setup").hidden=!!(S.tp||S.sp);
   $("cards").innerHTML=card("dollar","#34D399","Money Saved",cur()+saved().toFixed(2),"total saved")+card("flame","#FBBF24","Longest Streak",b>=DAY?Math.floor(b/DAY)+" days":Math.floor(b/H)+" hrs","best so far")+card("shield","#38BDF8","Urges Beaten",S.urges,"urges resisted so far")+card("layers","#A78BFA","Taper Step",P?(P.t.u==="mg"?P.v+"mg":P.v):"None",P?`step ${P.i+1}/${P.n}`:"no plan yet");
 }
@@ -107,9 +117,9 @@ function vPlan(){
   }
   const o=(v,l,c)=>`<option value="${v}" ${String(c)===String(v)?"selected":""}>${l}</option>`;
   h+=`<details class="g" ${P?"":"open"}><summary><b class="sp">${P?"Edit plan":"Create plan"}</b><span class="chev">${ic("chev",20,"#94A3B8")}</span></summary>
-<label for="pp">What do you use?</label><select id="pp">${o("cig","Cigarettes",p.type)}${o("vape","Vape (pods)",p.type)}${o("pouch","Pouches",p.type)}${o("patch","Patch (mg)",p.type)}</select>
+${prodUI("p",p)}
 <div class="two"><div><label for="pa">Amount per day (mg for patch)</label><input id="pa" type="number" min="0" step="0.5" inputmode="decimal" value="${p.rate||""}"></div><div><label for="pr">Price per piece</label><input id="pr" type="number" min="0" step="0.01" inputmode="decimal" value="${p.price||""}"></div></div>
-<label for="pg">Goal</label><select id="pg">${o("taper","Slow taper",S.tp||!P?"taper":"cold")}${o("cold","Quit now (cold turkey)",P?"taper":"x")}</select>
+<label for="pk">Currency</label>${curUI("pk",(S.sp&&S.sp.c)||"$")}<label for="pg">Goal</label><select id="pg">${o("taper","Slow taper",S.tp||!P?"taper":"cold")}${o("cold","Quit now (cold turkey)",P?"taper":"x")}</select>
 <div class="two"><div><label for="pc">Cut each step</label><select id="pc">${o(10,"10%",t.p)}${o(25,"25%",t.p||25)}${o(33,"33%",t.p)}${o(50,"50%",t.p)}</select></div><div><label for="pd">Step length</label><select id="pd">${o(7,"1 week",t.d)}${o(10,"10 days",t.d)}${o(14,"2 weeks",t.d||14)}</select></div></div>
 <button class="btn em" data-a="savep">Save plan</button><p class="n">Saving starts the plan today and sets your timer to now. Your history stays.</p></details>`;
   $("v-plan").innerHTML=h;
@@ -119,7 +129,7 @@ function vHist(){
   $("v-hist").innerHTML=`<div class="hd"><div><h1>History</h1><div class="sub">Your journey so far</div></div></div>
 <div class="grid" style="grid-template-columns:repeat(3,1fr)">${[["Restarts",S.hist.length],["Longest",dur(best())],["Uses logged",tot]].map(x=>`<div class="g" style="padding:12px;text-align:center"><div class="vl" style="font-size:19px">${x[1]}</div><div class="cp">${x[0]}</div></div>`).join("")}</div>
 <div class="g"><h2>Uses, last 14 days</h2><div class="bars" role="img" aria-label="Daily uses for the last 14 days">${days.map(d=>`<i style="height:${Math.max(4,d/mx*100)}%"></i>`).join("")}</div><div class="row n" style="justify-content:space-between;margin-top:6px"><span>${fd(Date.now()-13*DAY)}</span><span>Today</span></div></div>
-<div class="g"><h2>Timeline</h2><div class="step"><div class="dot on" style="background:var(--em)"></div><div class="sp"><b>Clock running</b><div class="n">Since ${new Date(S.last).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>${S.hist.slice(0,12).map(x=>`<div class="step"><div class="dot"></div><div class="sp"><b>${dur(x.end-x.start)} free, then used</b><div class="n">${new Date(x.end).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>`).join("")||'<p class="n">No restarts logged yet.</p>'}</div>`;
+<div class="g"><h2>Timeline</h2><div class="step"><div class="dot on" style="background:var(--em)"></div><div class="sp"><b>Clock running</b><div class="n">Since ${new Date(S.last).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>${S.hist.slice(0,12).map(x=>`<div class="step"><div class="dot"></div><div class="sp"><b>${dur(x.end-x.start)} free, then used</b><div class="n">${new Date(x.end).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})}</div></div></div>`).join("")||'<p class="n">No restarts logged yet.</p>'}${S.qd?`<div class="step"><div class="dot"></div><div class="sp"><b>Quit journey started</b><div class="n">${fd(new Date(S.qd+"T00:00:00"))}</div></div></div>`:""}</div>`;
 }
 function vAch(){
   const b=best()/DAY,ms=Date.now()-S.last,U=[1,5,10,25],ts=MS.map(m=>[b>=m[0],m[2],m[1].toLowerCase()+" free"]),us=U.map(n=>[S.urges>=n,n,n+(n>1?" urges":" urge")+" beaten"]),all=[...ts,...us],nx=MS.find(m=>m[0]>b);
@@ -130,6 +140,8 @@ function vAch(){
 function vMe(){
   $("v-me").innerHTML=`<div class="hd"><div><h1>Profile</h1><div class="sub">Settings and backup</div></div></div>
 <div class="g"><h2>My reason</h2><label for="why">Why I'm quitting</label><input id="why" maxlength="120" placeholder="Your reason" value="${esc(S.why||"")}"></div>
+<div class="g"><h2>What do you use?</h2>${prodUI("m",S.prod||{})}<p class="n" style="margin:8px 0 0">Used by your plan and the AI coach. Create or change your plan in the Plan tab.</p></div>
+<div class="g"><h2>Quit journey</h2><label for="qd">Quit start date</label><input id="qd" type="date" max="${dk()}" value="${S.qd||""}"><p class="n" id="qdn" style="margin:8px 0 0">${qtxt()}</p></div>
 <div class="g"><h2>AI Coach settings</h2>
 <label for="ap">Engine</label><select id="ap">${Object.keys(PRE).map(k=>`<option value="${k}">${PRE[k].n}</option>`).join("")}</select>
 <label for="ak">API key</label><input id="ak" type="password" autocomplete="off" placeholder="Paste your key">
@@ -138,7 +150,7 @@ function vMe(){
 <div class="two"><button class="btn" data-a="afind">Find models</button><button class="btn" data-a="atest">Test</button></div>
 <p class="n" id="amsg" role="status" style="margin:8px 0 0"></p>
 <p class="n" style="margin:6px 0 0">Keys are saved per engine, only in this browser, and never included in backup codes. Messages go to the engine you choose, so check its data terms. Model names change, so use Find models.</p></div>
-<div class="g"><h2>Spending</h2><div class="two"><div><label for="cu">Currency</label><input id="cu" maxlength="3" placeholder="$" value="${esc((S.sp&&S.sp.c)||"")}"></div><div><label for="sd">Daily spend</label><input id="sd" type="number" min="0" step="0.01" inputmode="decimal" value="${(S.sp&&S.sp.a)||""}"></div></div></div>
+<div class="g"><h2>Spending</h2><div class="two"><div><label for="cu">Currency</label>${curUI("cu",(S.sp&&S.sp.c)||"$")}</div><div><label for="sd">Daily spend</label><input id="sd" type="number" min="0" step="0.01" inputmode="decimal" value="${(S.sp&&S.sp.a)||""}"></div></div></div>
 <div class="g"><h2>Backup code</h2><p class="n" style="margin:0">Copy the code to move your progress to another phone. Codes from the first tracker also work here.</p><textarea id="bk" rows="3" aria-label="Backup code"></textarea><div class="two"><button class="btn" data-a="mk">Make code</button><button class="btn" data-a="ld">Load code</button></div></div>
 <div class="g"><button class="btn" id="rs" data-a="reset" style="margin:0;color:#FCA5A5">Reset all data</button></div>
 <p class="n">General information, not medical advice. For severe symptoms or thoughts of self-harm, contact a doctor or emergency services. Data stays in this browser.</p>`;
@@ -153,9 +165,9 @@ const A={
  cdone(){S.urges++;sv();A.cclose();toast("Urge beaten. That's "+S.urges+" so far.");tick()},
  slip(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to log it and reset the timer";setTimeout(()=>{delete b.dataset.arm;b.textContent="I used nicotine"},4e3);return}delete b.dataset.arm;b.textContent="I used nicotine";const n=Date.now();S.hist.unshift({start:S.last,end:n});S.last=n;S.use[dk()]=(S.use[dk()]||0)+1;sv();tick();toast("Logged. A slip is not failure, start again right now.")},
  up(){S.use[dk()]=(S.use[dk()]||0)+1;sv();vPlan()},dn(){S.use[dk()]=Math.max(0,(S.use[dk()]||0)-1);sv();vPlan()},
- savep(){const a=+$("pa").value,pr=+$("pr").value||0,pd=$("pp").value;if(!(a>0))return toast("Enter your amount per day");
-  S.prod={type:pd,rate:a,price:pr};S.sp={c:(S.sp&&S.sp.c)||"$",a:Math.round((pd==="patch"?pr:a*pr)*100)/100};S.last=Date.now();
-  if($("pg").value==="taper")S.tp={a,u:UN[pd],k:pd==="patch"?"mg":"day",p:+$("pc").value,d:+$("pd").value,s:new Date().setHours(0,0,0,0)};else delete S.tp;
+ savep(){const a=+$("pa").value,pr=+$("pr").value||0,pd=$("pt").value,cn=$("pn").value.trim(),cu=$("pu").value.trim()||"pieces";if(!(a>0))return toast("Enter your amount per day");
+  S.prod={type:pd,rate:a,price:pr,name:cn,unit:cu};S.sp={c:curVal("pk"),a:Math.round((pd==="patch"?pr:a*pr)*100)/100};S.last=Date.now();if(!S.qd)S.qd=dk();
+  if($("pg").value==="taper")S.tp={a,u:pd==="custom"?cu+" per day":UN[pd],k:pd==="patch"?"mg":"day",p:+$("pc").value,d:+$("pd").value,s:new Date().setHours(0,0,0,0)};else delete S.tp;
   if(S.tp&&pd==="patch")S.tp.k="str";sv();toast("Plan saved. Timer restarted.");go("home")},
  mk(){const e=$("bk");e.value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));e.select();try{navigator.clipboard.writeText(e.value)}catch(x){}toast("Code ready. Keep it somewhere safe.")},
  ld(b){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="Tap again to replace";setTimeout(()=>{delete b.dataset.arm;b.textContent="Load code"},4e3);return}delete b.dataset.arm;b.textContent="Load code";
@@ -164,7 +176,13 @@ const A={
  chip(b){ask(b.dataset.q,b.dataset.l)},send(){ask($("qi").value);$("qi").value=""}
 };
 document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&A[b.dataset.a])A[b.dataset.a](b)});
-document.addEventListener("input",e=>{const i=e.target.id;if(i==="why"){S.why=e.target.value.trim();sv()}else if(i==="cu"||i==="sd"){S.sp={c:$("cu").value.trim(),a:parseFloat($("sd").value)||0};sv()}});
+document.addEventListener("input",e=>{const i=e.target.id;
+ if(i==="why"){S.why=e.target.value.trim();sv()}
+ else if(i==="cu"||i==="cux"||i==="sd"){if(i==="cu")$("cux").hidden=e.target.value!=="_";S.sp={c:curVal("cu"),a:parseFloat($("sd").value)||0};sv()}
+ else if(i==="pk"){$("pkx").hidden=e.target.value!=="_"}
+ else if(i==="pt"||i==="mt"){$(i[0]+"w").hidden=e.target.value!=="custom";if(i==="mt")saveProd()}
+ else if(i==="mn"||i==="mu")saveProd();
+ else if(i==="qd"){S.qd=e.target.value;sv();$("qdn").textContent=qtxt()}});
 $("qi").onkeydown=e=>{if(e.key==="Enter")A.send()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("crave").hidden)A.cclose()});
 // ---- AI coach ----
@@ -215,7 +233,7 @@ A.afind=async()=>{
 function add(c,t){const d=document.createElement("div");d.className="msg "+c;if(c==="u")d.textContent=t;else d.innerHTML=t;$("log").appendChild(d);$("log").scrollTop=1e6;return d}
 async function ask(q,l){q=(q||"").trim();if(!q||busy)return;busy=1;add("u",l||q);const o=add("a","...");ch.push({role:"user",content:q});
  try{const P=plan(),m=(ch.length>9?ch.slice(-9):ch).map(x=>({...x}));
-  m[m.length-1].content+=`\n\n[Tracker context: ${dur(Date.now()-S.last)} since last nicotine.${P?` Taper step ${P.i+1} of ${P.n}, limit ${P.v} ${P.t.u}.`:""}]`;
+  m[m.length-1].content+=`\n\n[Tracker context: ${dur(Date.now()-S.last)} since last nicotine.${S.prod&&S.prod.type?" Product: "+pname(S.prod)+".":""}${P?` Taper step ${P.i+1} of ${P.n}, limit ${P.v} ${P.t.u}.`:""}]`;
   const t=await callAI(m);if(!t)throw{c:"empty"};o.innerHTML=md(t);ch.push({role:"assistant",content:t});$("log").scrollTop=1e6}
  catch(e){ch.pop();o.textContent=aiErr(e)}busy=0}
 go("home");tick();setInterval(tick,1000);if(!S.tp&&!S.sp)toast("Welcome. Tap Plan to set up your quit plan.");
